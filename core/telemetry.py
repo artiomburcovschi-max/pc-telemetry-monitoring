@@ -5,7 +5,7 @@ import platform
 import psutil
 import GPUtil
 from PySide6.QtCore import QThread,Signal
-
+from cpuinfo import get_cpu_info
 #sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))) 
 from core.models import TelemetryData
 
@@ -16,7 +16,14 @@ class TelemetryThread(QThread):
         super().__init__()
         self.is_running = True
         self.os_current = platform.system()
+        self.os_name_display = self._get_os_info()
         gpus = GPUtil.getGPUs()
+        try:
+            info = get_cpu_info()
+            self.current_cpu_name = info.get('brand_raw', 'Unknown CPU')
+        except Exception:
+            self.current_cpu_name = 'Unknown CPU'
+
         if gpus:
             try:
                 self.current_gpu_name = gpus[0].name
@@ -33,6 +40,23 @@ class TelemetryThread(QThread):
             self.current_totram = psutil.virtual_memory().total / (1024**3)
         except Exception:
             self.current_totram = 0.0
+
+    def _get_os_info(self) -> str:
+        if self.os_current == 'Linux':
+            try:
+                info = platform.freedesktop_os_release()
+                return info.get("PRETTY_NAME", f"Linux {platform.release()}")
+            except (AttributeError, OSError):
+                return f"Linux {platform.release()}"
+                
+        elif self.os_current == 'Windows':
+            try:
+                return f"Windows {platform.release()} (Build {platform.version()})"
+            except Exception:
+                return "Unknown Windows"
+                
+        return self.os_current
+
     def _get_cpu_temperature(self) -> float | None:
         if self.os_current == 'Linux':
             try:
@@ -63,6 +87,15 @@ class TelemetryThread(QThread):
         psutil.cpu_percent(interval=None)
         
         while self.is_running:
+            current_cores = ()
+            current_cpu = 0.0
+            current_freq = 0.0
+            current_ram = 0.0
+            current_gpu = 0.0
+            current_gputemp = None
+            current_vram_percent = 0.0
+            current_vram_used = 0.0
+            
             try:
                 try:
                     current_cores = tuple(psutil.cpu_percent(interval=None, percpu=True))
@@ -105,7 +138,8 @@ class TelemetryThread(QThread):
                     gpu_memoryTot = self.current_vram_total,
                     gpu_c_memory = current_vram_used,
                     gpu_c_memory_perc = current_vram_percent,
-                    os = self.os_current
+                    cpu_name = self.current_cpu_name,
+                    os_name = self.os_name_display
 
                 )
                 self.my_signal.emit(data)  
