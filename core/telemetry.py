@@ -100,6 +100,10 @@ class TelemetryThread(QThread):
                 try:
                     current_cores = tuple(psutil.cpu_percent(interval=None, percpu=True))
                     current_cpu = sum(current_cores) / len(current_cores)
+                    filtred_cores = [
+                        (idx+1,load)for idx,load in enumerate(current_cores) if load > 1
+                    ]
+                    current_cores = tuple(filtred_cores)
                 except Exception:
                     current_cores = ()
                     current_cpu = 0.0
