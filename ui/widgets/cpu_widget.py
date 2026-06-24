@@ -1,7 +1,7 @@
 from PySide6.QtCore import Qt,QSize,Slot,Signal
-from PySide6.QtWidgets import QApplication,QMainWindow,QLabel,QFrame,QVBoxLayout
+from PySide6.QtWidgets import QLabel,QFrame,QVBoxLayout,QScrollArea
 
-from settings.config import Config
+
 
 class CpuWidget(QFrame):
     def __init__(self):
@@ -17,17 +17,27 @@ class CpuWidget(QFrame):
         self.freq_label = QLabel(self)
         self.name_label = QLabel(self)
 
-        self.title_label.setText("--==CPU==--")
+        self.title_label.setText("CPU")
         self.title_label.setObjectName("Header")
 
         self.cores_label.setWordWrap(True)
+        self.cores_label.setAlignment(Qt.AlignTop)
+
+        self.scroll_area = QScrollArea(self)
+        self.scroll_area.setWidgetResizable(True)
+        self.scroll_area.setWidget(self.cores_label)
+        self.scroll_area.setStyleSheet("""
+            QScrollArea { border: none; background-color: transparent; }
+            QScrollBar:vertical { width: 10px; background: #1e1e1e; }
+            QScrollBar::handle:vertical { background: #ff8c00; border-radius: 5px; } 
+        """)
 
         layout.addWidget(self.title_label)
         layout.addWidget(self.name_label)
         layout.addWidget(self.usage_label)
         layout.addWidget(self.temp_label)
         layout.addWidget(self.freq_label)
-        layout.addWidget(self.cores_label)
+        layout.addWidget(self.scroll_area)
 
     def update_cpu(self,name,usage,temp,cores,freq):
         self.name_label.setText(f"Name: {name}")

@@ -1,7 +1,7 @@
 from PySide6.QtCore import Qt,QSize,Slot,Signal
-from PySide6.QtWidgets import QApplication,QMainWindow,QLabel,QFrame,QVBoxLayout
+from PySide6.QtWidgets import QLabel,QFrame,QVBoxLayout
 
-from settings.config import Config
+
 
 class RamWidget(QFrame):
     def __init__(self):
@@ -15,7 +15,7 @@ class RamWidget(QFrame):
         self.total_label = QLabel(self)
         
         
-        self.title_label.setText("--==RAM==--")
+        self.title_label.setText("RAM")
         self.title_label.setObjectName("Header")
 
         layout.addWidget(self.title_label)

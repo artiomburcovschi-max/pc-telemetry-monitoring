@@ -1,7 +1,7 @@
 from PySide6.QtCore import Qt,QSize,Slot,Signal
-from PySide6.QtWidgets import QApplication,QMainWindow,QLabel,QFrame,QVBoxLayout
+from PySide6.QtWidgets import QLabel,QFrame,QVBoxLayout
 
-from settings.config import Config
+
 
 class GpuWidget(QFrame):
     def __init__(self):
@@ -19,7 +19,7 @@ class GpuWidget(QFrame):
         self.current_p_mem_label = QLabel(self)
         
         
-        self.title_label.setText("--==GPU==--")
+        self.title_label.setText("GPU")
         self.title_label.setObjectName("Header")
 
         layout.addWidget(self.title_label)
@@ -34,5 +34,5 @@ class GpuWidget(QFrame):
         self.name_label.setText(f"Name: {name} - {tot}GB")
         self.usage_label.setText(f"Usage:{usage}%")
         self.temp_label.setText(f"Temp:{temp}°C")
-        self.current_mem_label.setText(f"Current usage memory:{current_mem}mb")
+        self.current_mem_label.setText(f"Current usage memory:{current_mem}GB")
         self.current_p_mem_label.setText(f"percentage ratio:{current_p_mem:.1f}%")

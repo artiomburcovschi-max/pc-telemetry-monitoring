@@ -1,10 +1,10 @@
 from settings.palette import Palette
 
 class Config:
-    MIN_WIDTH = 650
-    MIN_HEIGHT = 500
-    MAX_WIDTH = 750
-    MAX_HEIGHT = 700
+    MIN_WIDTH = 558
+    MIN_HEIGHT = 600
+    MAX_WIDTH = 700
+    MAX_HEIGHT = 900
 
     style = f"""
         QMainWindow {{
@@ -24,8 +24,18 @@ class Config:
             background: transparent;
         }}
         QLabel#Header {{
-            color: {Palette.ACCENT_GREEN};
+            color: {Palette.ACCENT_ORANGE};
             font-size: 15px;
             font-weight: bold;
+        }}
+        MainWidget QLabel {{
+            font-size: 25px; 
+            padding: 8px 0px;
+        }}
+        MainWidget QLabel#Header {{
+            font-size: 30px;
+            font-weight: bold;
+            color: {Palette.ACCENT_ORANGE}; 
+            margin-bottom: 50px; 
         }}
     """
