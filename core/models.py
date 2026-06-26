@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass,field
 
 @dataclass(frozen=True)
 class TelemetryData:
@@ -18,6 +18,7 @@ class TelemetryData:
         ram_usage: float = 0.0
         ram_total:float = 0.0
 
-
+        disk_info: list = field(default_factory=list)
+        
         os_name:str = ""
 

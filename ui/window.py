@@ -6,6 +6,7 @@ from ui.widgets.ram_widget import RamWidget
 from ui.widgets.os_widget import OsWidget
 from ui.widgets.gpu_widget import GpuWidget
 from ui.widgets.main_data_widget import MainWidget
+from ui.widgets.disk_widget import DiskWidget
 
 from settings.config import Config
 
@@ -19,7 +20,7 @@ class MainWindow(QMainWindow):
 
         tab_widget = QTabWidget()
         self.setCentralWidget(tab_widget)
-
+    
         container_1 = QWidget()
         layout1 = QGridLayout(container_1)
 
@@ -32,18 +33,21 @@ class MainWindow(QMainWindow):
         layout2 = QGridLayout(container_2)
 
         self.cpu_panel = CpuWidget()
-        layout2.addWidget(self.cpu_panel,0,0)
+        layout2.addWidget(self.cpu_panel, 0, 0)
 
         self.ram_panel = RamWidget()
-        layout2.addWidget(self.ram_panel,0,1)
+        layout2.addWidget(self.ram_panel, 0, 1, alignment=Qt.AlignTop | Qt.AlignLeft)
 
         self.os_panel = OsWidget()
-        layout2.addWidget(self.os_panel,1,1)
+        layout2.addWidget(self.os_panel, 0, 2, alignment=Qt.AlignTop | Qt.AlignRight)
 
         self.gpu_panel = GpuWidget()
-        layout2.addWidget(self.gpu_panel,1,0)
+        layout2.addWidget(self.gpu_panel, 1, 0)
 
-        tab_widget.addTab(container_2,"Детали")
+        self.disk_panel = DiskWidget()
+        layout2.addWidget(self.disk_panel, 1, 1, alignment=Qt.AlignTop | Qt.AlignLeft)
+
+        tab_widget.addTab(container_2, "Детали")
         
         self.telemetry_thread = TelemetryThread()
         self.telemetry_thread.my_signal.connect(self.update_ui)
@@ -54,7 +58,9 @@ class MainWindow(QMainWindow):
         self.ram_panel.update_ram(data.ram_usage,data.ram_total)
         self.os_panel.update_os(data.os_name)
         self.gpu_panel.update_gpu(data.gpu_name,data.gpu_memoryTot,data.gpu_usage,data.gpu_temp,data.gpu_c_memory,data.gpu_c_memory_perc)
-        self.main_data_panel.update_main(data.cpu_usage,data.cpu_temp,data.gpu_usage,data.gpu_temp,data.gpu_c_memory,data.ram_usage)
+        self.disk_panel.update_disk(data.disk_info)
+        self.main_data_panel.update_main(data.cpu_usage,data.cpu_temp,data.gpu_usage,data.gpu_temp,data.gpu_c_memory,data.ram_usage,data.disk_info)
+
     def closeEvent(self, event):
         self.telemetry_thread.stop()
         event.accept()

@@ -17,30 +17,34 @@ class TelemetryThread(QThread):
         self.is_running = True
         self.os_current = platform.system()
         self.os_name_display = self._get_os_info()
-        gpus = GPUtil.getGPUs()
+        
         try:
             info = get_cpu_info()
             self.current_cpu_name = info.get('brand_raw', 'Unknown CPU')
         except Exception:
             self.current_cpu_name = 'Unknown CPU'
-
-        if gpus:
-            try:
-                self.current_gpu_name = gpus[0].name
-            except Exception:
-                self.current_gpu_name = 'No Nvidia GPU'
-            try:
-                self.current_vram_total = round(gpus[0].memoryTotal / 1024, 1) 
-            except Exception:
+        try:
+            gpus = GPUtil.getGPUs()
+            if gpus:
+                try:
+                    self.current_gpu_name = gpus[0].name
+                except Exception:
+                    self.current_gpu_name = 'No Nvidia GPU'
+                try:
+                    self.current_vram_total = round(gpus[0].memoryTotal / 1024, 1) 
+                except Exception:
+                    self.current_vram_total = 0.0
+            else:
+                self.current_gpu_name = 'Unknown GPU'
                 self.current_vram_total = 0.0
-        else:
+        except Exception:
             self.current_gpu_name = 'Unknown GPU'
             self.current_vram_total = 0.0
         try:
             self.current_totram = psutil.virtual_memory().total / (1024**3)
         except Exception:
             self.current_totram = 0.0
-
+    
     def _get_os_info(self) -> str:
         if self.os_current == 'Linux':
             try:
@@ -86,7 +90,8 @@ class TelemetryThread(QThread):
     def run(self):
         psutil.cpu_percent(interval=None)
         
-        while self.is_running:
+        while self.is_running:        
+
             current_cores = ()
             current_cpu = 0.0
             current_freq = 0.0
@@ -95,7 +100,6 @@ class TelemetryThread(QThread):
             current_gputemp = None
             current_vram_percent = 0.0
             current_vram_used = 0.0
-            
             try:
                 try:
                     current_cores = tuple(psutil.cpu_percent(interval=None, percpu=True))
@@ -115,6 +119,22 @@ class TelemetryThread(QThread):
                     current_ram = psutil.virtual_memory().percent
                 except Exception:
                     current_ram = 0.0
+
+                current_disks_list = []
+                partitions = psutil.disk_partitions(all=False)
+                for part in partitions:
+                    try:
+                        usage = psutil.disk_usage(part.mountpoint)
+                        disk_data = {
+                            "name":part.mountpoint,
+                            "total":round(usage.total / (1024**3)),
+                            "Usage":round(usage.used / (1024**3)),
+                            "free":round(usage.free / (1024**3)),
+                            "Percent":round(usage.percent)
+                            }
+                        current_disks_list.append(disk_data)
+                    except Exception:
+                        continue
                 try:
                     gpus = GPUtil.getGPUs()
                     if gpus:
@@ -143,8 +163,8 @@ class TelemetryThread(QThread):
                     gpu_c_memory = current_vram_used,
                     gpu_c_memory_perc = current_vram_percent,
                     cpu_name = self.current_cpu_name,
-                    os_name = self.os_name_display
-
+                    os_name = self.os_name_display,
+                    disk_info = current_disks_list
                 )
                 self.my_signal.emit(data)  
             except Exception as e:
