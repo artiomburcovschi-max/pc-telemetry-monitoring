@@ -1,5 +1,5 @@
 from PySide6.QtCore import Qt,QSize,Slot,Signal
-from PySide6.QtWidgets import QApplication,QMainWindow,QLabel,QWidget,QGridLayout,QFrame,QTabWidget
+from PySide6.QtWidgets import QApplication,QMainWindow,QLabel,QWidget,QVBoxLayout,QHBoxLayout,QGridLayout,QFrame,QTabWidget
 from core.telemetry import TelemetryThread
 from ui.widgets.cpu_widget import CpuWidget
 from ui.widgets.ram_widget import RamWidget
@@ -30,22 +30,30 @@ class MainWindow(QMainWindow):
         tab_widget.addTab(container_1,"Обзор")
 
         container_2 = QWidget()
-        layout2 = QGridLayout(container_2)
+        layout2 = QHBoxLayout(container_2)
 
+        left_column = QVBoxLayout()
+        
         self.cpu_panel = CpuWidget()
-        layout2.addWidget(self.cpu_panel, 0, 0)
-
-        self.ram_panel = RamWidget()
-        layout2.addWidget(self.ram_panel, 0, 1, alignment=Qt.AlignTop | Qt.AlignLeft)
-
-        self.os_panel = OsWidget()
-        layout2.addWidget(self.os_panel, 0, 2, alignment=Qt.AlignTop | Qt.AlignRight)
-
         self.gpu_panel = GpuWidget()
-        layout2.addWidget(self.gpu_panel, 1, 0)
+        
+        left_column.addWidget(self.cpu_panel)
+        left_column.addWidget(self.gpu_panel)
 
+        right_column = QVBoxLayout()
+        
+        self.os_panel = OsWidget()
+        self.ram_panel = RamWidget()
         self.disk_panel = DiskWidget()
-        layout2.addWidget(self.disk_panel, 1, 1, alignment=Qt.AlignTop | Qt.AlignLeft)
+        
+        right_column.addWidget(self.os_panel)
+        right_column.addWidget(self.ram_panel)
+        right_column.addWidget(self.disk_panel)
+        
+        right_column.addStretch()
+
+        layout2.addLayout(left_column, stretch=5)
+        layout2.addLayout(right_column, stretch=4)
 
         tab_widget.addTab(container_2, "Детали")
         

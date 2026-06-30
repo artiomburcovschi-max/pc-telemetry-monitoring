@@ -20,6 +20,8 @@ class CpuWidget(QFrame):
         self.title_label.setText("CPU")
         self.title_label.setObjectName("Header")
 
+        self.name_label.setWordWrap(True)
+        
         self.cores_label.setWordWrap(True)
         self.cores_label.setAlignment(Qt.AlignTop)
 

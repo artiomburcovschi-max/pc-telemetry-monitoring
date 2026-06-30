@@ -1,9 +1,9 @@
 from settings.palette import Palette
 
 class Config:
-    MIN_WIDTH = 558
+    MIN_WIDTH = 620
     MIN_HEIGHT = 600
-    MAX_WIDTH = 700
+    MAX_WIDTH = 800
     MAX_HEIGHT = 900
 
     style = f"""

@@ -38,5 +38,9 @@ class MainWidget(QFrame):
         self.gpu_temp_label.setText(f"GPU temperature:{gpu_temp}°C")
         self.gpu_c_mem_label.setText(f"GPU current memory usage:{gpu_c_m} GB")
         self.ram_usage.setText(f"RAM usage:{ram_usage:.1f}%")
-        self.disk_info.setText(f"DISK info:{disk_info}")
+        if disk_info:
+            main_disk = disk_info[0]
+            self.disk_info.setText(f"DISK usage: {main_disk['Percent']}%")
+        else:
+            self.disk_info.setText("DISK info: No disks found")
 

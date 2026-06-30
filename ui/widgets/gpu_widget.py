@@ -21,6 +21,8 @@ class GpuWidget(QFrame):
         
         self.title_label.setText("GPU")
         self.title_label.setObjectName("Header")
+        
+        self.name_label.setWordWrap(True)
 
         layout.addWidget(self.title_label)
         layout.addWidget(self.name_label)
