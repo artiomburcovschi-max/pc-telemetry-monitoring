@@ -1,5 +1,7 @@
 import sys
+import time
 import os
+import re
 import importlib
 import platform
 import psutil
@@ -17,7 +19,7 @@ class TelemetryThread(QThread):
         self.is_running = True
         self.os_current = platform.system()
         self.os_name_display = self._get_os_info()
-        
+
         try:
             info = get_cpu_info()
             self.current_cpu_name = info.get('brand_raw', 'Unknown CPU')
@@ -90,7 +92,19 @@ class TelemetryThread(QThread):
     def run(self):
         psutil.cpu_percent(interval=None)
         
+        self.last_read_bytes = psutil.disk_io_counters().read_bytes
+        self.last_time = time.time()
+
+        self.msleep(100)
+
         while self.is_running:        
+            
+            current_time = time.time()
+            t_delta = current_time - self.last_time
+            current_io = psutil.disk_io_counters()
+            read_delta = current_io.read_bytes - self.last_read_bytes
+            read_speed = (read_delta / t_delta)/(1024*1024)
+
 
             current_cores = ()
             current_cpu = 0.0
@@ -123,15 +137,31 @@ class TelemetryThread(QThread):
                 current_disks_list = []
                 partitions = psutil.disk_partitions(all=False)
                 for part in partitions:
-                    try:
+                    path_name_disk = part.device.replace('/dev/', '')
+                    clean_name = re.sub(r'p?\d+$',"",path_name_disk)
+                    path = f"/sys/block/{clean_name}/queue/rotational"
+                    try: 
+                        exit_path = os.path.exists(path)
+                        if exit_path:
+                            with open(path, 'r') as f:
+                                content = f.read().strip()
+                                if content == "0":
+                                    disk_type = "SSD"
+                                else:
+                                    disk_type = "HDD"
+                        else:
+                            disk_type = "UNKNOWN"
+
                         usage = psutil.disk_usage(part.mountpoint)
                         disk_data = {
                             "name":part.mountpoint,
-                            "total":round(usage.total / (1024**3)),
-                            "Usage":round(usage.used / (1024**3)),
-                            "free":round(usage.free / (1024**3)),
+                            "total":round(usage.total / (1024**3), 2),
+                            "Usage":round(usage.used / (1024**3), 2),
+                            "free":round(usage.free / (1024**3), 2),
                             "Percent":round(usage.percent)
                             }
+                        disk_data['read_speed'] = round(read_speed,2)
+                        disk_data['type'] = disk_type
                         current_disks_list.append(disk_data)
                     except Exception:
                         continue
@@ -166,6 +196,8 @@ class TelemetryThread(QThread):
                     os_name = self.os_name_display,
                     disk_info = current_disks_list
                 )
+                self.last_read_bytes = current_io.read_bytes
+                self.last_time = current_time
                 self.my_signal.emit(data)  
             except Exception as e:
                 print(e)
