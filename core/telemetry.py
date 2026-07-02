@@ -8,7 +8,6 @@ import psutil
 import GPUtil
 from PySide6.QtCore import QThread,Signal
 from cpuinfo import get_cpu_info
-#sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))) 
 from core.models import TelemetryData
 
 class TelemetryThread(QThread):
@@ -19,6 +18,7 @@ class TelemetryThread(QThread):
         self.is_running = True
         self.os_current = platform.system()
         self.os_name_display = self._get_os_info()
+        self.disk_type_cache = {}
 
         try:
             info = get_cpu_info()
@@ -88,11 +88,33 @@ class TelemetryThread(QThread):
             except Exception:
                 return None
         return None
-
+    def _get_disk_type(self, part) -> str:
+        if part.mountpoint in self.disk_type_cache:
+            return self.disk_type_cache[part.mountpoint]
+        
+        disk_type = "UNKNOWN"
+        
+        if self.os_current == 'Linux': 
+            path_name_disk = part.device.replace('/dev/', '')
+            clean_name = re.sub(r'p?\d+$',"",path_name_disk)
+            path = f"/sys/block/{clean_name}/queue/rotational"
+            try: 
+                exit_path = os.path.exists(path)
+                if exit_path:
+                    with open(path, 'r') as f:
+                        content = f.read().strip()
+                        if content == "0":
+                            disk_type = "SSD"
+                        else:
+                            disk_type = "HDD"
+            except Exception:
+                pass
+        self.disk_type_cache[part.mountpoint] = disk_type
+        return disk_type
     def run(self):
         psutil.cpu_percent(interval=None)
-        
-        self.last_read_bytes = psutil.disk_io_counters().read_bytes
+        self.last_disk_io = {}
+        self.last_disk_io = psutil.disk_io_counters(perdisk=True) or {}
         self.last_time = time.time()
 
         self.msleep(100)
@@ -101,9 +123,7 @@ class TelemetryThread(QThread):
             
             current_time = time.time()
             t_delta = current_time - self.last_time
-            current_io = psutil.disk_io_counters()
-            read_delta = current_io.read_bytes - self.last_read_bytes
-            read_speed = (read_delta / t_delta)/(1024*1024)
+            current_disk_io = psutil.disk_io_counters(perdisk=True) or {}
 
 
             current_cores = ()
@@ -137,22 +157,22 @@ class TelemetryThread(QThread):
                 current_disks_list = []
                 partitions = psutil.disk_partitions(all=False)
                 for part in partitions:
-                    path_name_disk = part.device.replace('/dev/', '')
-                    clean_name = re.sub(r'p?\d+$',"",path_name_disk)
-                    path = f"/sys/block/{clean_name}/queue/rotational"
-                    try: 
-                        exit_path = os.path.exists(path)
-                        if exit_path:
-                            with open(path, 'r') as f:
-                                content = f.read().strip()
-                                if content == "0":
-                                    disk_type = "SSD"
-                                else:
-                                    disk_type = "HDD"
-                        else:
-                            disk_type = "UNKNOWN"
-
+                    try:
                         usage = psutil.disk_usage(part.mountpoint)
+
+                        disk_type = self._get_disk_type(part)
+
+                        if self.os_current == 'Linux':
+                            io_key = part.device.replace('/dev/', '')
+                        elif self.os_current == 'Windows':
+                            io_key = part.mountpoint.replace('\\', '')
+                        else:
+                            io_key = None
+                        
+                        read_speed = 0.0
+                        if io_key and (io_key in current_disk_io) and (io_key in self.last_disk_io):
+                            read_delta = current_disk_io[io_key].read_bytes - self.last_disk_io[io_key].read_bytes
+                            read_speed = round((read_delta / t_delta) / (1024*1024), 2)
                         disk_data = {
                             "name":part.mountpoint,
                             "total":round(usage.total / (1024**3), 2),
@@ -160,7 +180,9 @@ class TelemetryThread(QThread):
                             "free":round(usage.free / (1024**3), 2),
                             "Percent":round(usage.percent)
                             }
-                        disk_data['read_speed'] = round(read_speed,2)
+                       
+
+                        disk_data['read_speed'] = read_speed
                         disk_data['type'] = disk_type
                         current_disks_list.append(disk_data)
                     except Exception:
@@ -196,7 +218,7 @@ class TelemetryThread(QThread):
                     os_name = self.os_name_display,
                     disk_info = current_disks_list
                 )
-                self.last_read_bytes = current_io.read_bytes
+                self.last_disk_io = current_disk_io
                 self.last_time = current_time
                 self.my_signal.emit(data)  
             except Exception as e:
