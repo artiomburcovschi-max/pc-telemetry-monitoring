@@ -118,7 +118,6 @@ class TelemetryThread(QThread):
                     result = subprocess.run(['powershell', '-Command', f"Get-Partition -DriveLetter {res} | Get-Disk | Get-PhysicalDisk | Select-Object -ExpandProperty MediaType"], capture_output=True, text=True, timeout=2)
                     if result.stdout:
                         disk_type = result.stdout.strip()
-                        return disk_type
                     else:
                         disk_type = "UNKNOWN"
             except Exception:
@@ -185,6 +184,8 @@ class TelemetryThread(QThread):
                         
                         read_speed = 0.0
                         write_speed = 0.0
+                        total_read = 0.0
+                        total_write = 0.0
                         if io_key and (io_key in current_disk_io) and (io_key in self.last_disk_io):
                             read_delta = current_disk_io[io_key].read_bytes - self.last_disk_io[io_key].read_bytes
                             read_speed = round((read_delta / t_delta) / (1024*1024), 2)
