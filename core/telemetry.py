@@ -6,6 +6,7 @@ import importlib
 import platform
 import psutil
 import GPUtil
+import subprocess
 from PySide6.QtCore import QThread,Signal
 from cpuinfo import get_cpu_info
 from core.models import TelemetryData
@@ -109,6 +110,19 @@ class TelemetryThread(QThread):
                             disk_type = "HDD"
             except Exception:
                 pass
+        elif self.os_current == 'Windows':
+            match = re.search(r'([A-Za-z]):', part.mountpoint)
+            try:
+                if match:
+                    res = match.group(1).upper()  
+                    result = subprocess.run(['powershell', '-Command', f"Get-Partition -DriveLetter {res} | Get-Disk | Get-PhysicalDisk | Select-Object -ExpandProperty MediaType"], capture_output=True, text=True, timeout=2)
+                    if result.stdout:
+                        disk_type = result.stdout.strip()
+                        return disk_type
+                    else:
+                        disk_type = "UNKNOWN"
+            except Exception:
+                pass
         self.disk_type_cache[part.mountpoint] = disk_type
         return disk_type
     def run(self):
@@ -170,9 +184,14 @@ class TelemetryThread(QThread):
                             io_key = None
                         
                         read_speed = 0.0
+                        write_speed = 0.0
                         if io_key and (io_key in current_disk_io) and (io_key in self.last_disk_io):
                             read_delta = current_disk_io[io_key].read_bytes - self.last_disk_io[io_key].read_bytes
                             read_speed = round((read_delta / t_delta) / (1024*1024), 2)
+                            write_delta = current_disk_io[io_key].write_bytes - self.last_disk_io[io_key].write_bytes
+                            write_speed = round((write_delta / t_delta) / (1024*1024), 2)
+                            total_read = round(current_disk_io[io_key].read_bytes / (1024**3),2)
+                            total_write = round(current_disk_io[io_key].write_bytes / (1024**3),2)
                         disk_data = {
                             "name":part.mountpoint,
                             "total":round(usage.total / (1024**3), 2),
@@ -181,8 +200,10 @@ class TelemetryThread(QThread):
                             "Percent":round(usage.percent)
                             }
                        
-
                         disk_data['read_speed'] = read_speed
+                        disk_data['write_speed'] = write_speed
+                        disk_data['read_bytes'] = total_read
+                        disk_data['write_bytes'] = total_write
                         disk_data['type'] = disk_type
                         current_disks_list.append(disk_data)
                     except Exception:

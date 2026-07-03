@@ -39,7 +39,7 @@ class MainWidget(QFrame):
         self.ram_usage.setText(f"RAM usage:{ram_usage:.1f}%")
         if disk_info:
             main_disk = disk_info[0]
-            self.disk_speed.setText(f"DISK speed: {main_disk['read_speed']}MB/s")
+            self.disk_speed.setText(f"DISK ({main_disk['type']}):\n Read speed: {main_disk['read_speed']}MB/s     (tot:{main_disk['read_bytes']} GB)\n Write speed:{main_disk['write_speed']}MB/s  (tot:{main_disk['write_bytes']} GB)")
         else:
             self.disk_speed.setText("N/A")
 

@@ -22,7 +22,7 @@ class DiskWidget(QFrame):
         text_lines = []
         
         for disk in disk_info:
-            disk_string = f"Disk {disk['name']} \n Total: {disk['total']} GB \n Used: {disk['Usage']} GB  {disk['Percent']}% \n Speed: {disk['read_speed']} MB/s \n Disk type: {disk['type']}\n"
+            disk_string = f"Disk {disk['name']}     ({disk['type']}) \n Total: {disk['total']} GB \n Used: {disk['Usage']} GB  {disk['Percent']}% \n Read speed: {disk['read_speed']} MB/s  Tot:({disk['read_bytes']}) GB\n Write speed: {disk['write_speed']} MB/s  Tot:({disk['write_bytes']}) GB"
             text_lines.append(disk_string)
         
         full_text = "\n".join(text_lines)
