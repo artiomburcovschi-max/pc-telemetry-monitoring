@@ -7,7 +7,7 @@ from ui.widgets.os_widget import OsWidget
 from ui.widgets.gpu_widget import GpuWidget
 from ui.widgets.main_data_widget import MainWidget
 from ui.widgets.disk_widget import DiskWidget
-
+from ui.widgets.net_widget import NetWidget
 from settings.config import Config
 
 class MainWindow(QMainWindow):
@@ -57,6 +57,15 @@ class MainWindow(QMainWindow):
 
         tab_widget.addTab(container_2, "Детали")
         
+        container_3 = QWidget()
+        layout3 = QHBoxLayout(container_3)
+        
+        self.net_panel = NetWidget()
+        
+        layout3.addWidget(self.net_panel)
+
+        tab_widget.addTab(container_3, "Сети")
+
         self.telemetry_thread = TelemetryThread()
         self.telemetry_thread.my_signal.connect(self.update_ui)
         self.telemetry_thread.start()
@@ -67,8 +76,8 @@ class MainWindow(QMainWindow):
         self.os_panel.update_os(data.os_name)
         self.gpu_panel.update_gpu(data.gpu_name,data.gpu_memoryTot,data.gpu_usage,data.gpu_temp,data.gpu_c_memory,data.gpu_c_memory_perc)
         self.disk_panel.update_disk(data.disk_info)
-        self.main_data_panel.update_main(data.cpu_usage,data.cpu_temp,data.gpu_usage,data.gpu_temp,data.gpu_c_memory,data.ram_usage,data.disk_info)
-
+        self.main_data_panel.update_main(data)
+        self.net_panel.update_net(data.net_download_speed,data.net_upload_speed,data.net_total_recv,data.net_total_sent)
     def closeEvent(self, event):
         self.telemetry_thread.stop()
         event.accept()

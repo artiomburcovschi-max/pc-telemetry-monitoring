@@ -126,9 +126,12 @@ class TelemetryThread(QThread):
         return disk_type
     def run(self):
         psutil.cpu_percent(interval=None)
+
         self.last_disk_io = {}
         self.last_disk_io = psutil.disk_io_counters(perdisk=True) or {}
         self.last_time = time.time()
+
+        self.last_net_io = psutil.net_io_counters()
 
         self.msleep(100)
 
@@ -137,6 +140,14 @@ class TelemetryThread(QThread):
             current_time = time.time()
             t_delta = current_time - self.last_time
             current_disk_io = psutil.disk_io_counters(perdisk=True) or {}
+
+            current_net_io = psutil.net_io_counters()
+            b_r_delta = current_net_io.bytes_recv - self.last_net_io.bytes_recv
+            b_s_delta = current_net_io.bytes_sent - self.last_net_io.bytes_sent
+            r_delta = round((b_r_delta / t_delta) / (1024*1024),2)
+            s_delta = round((b_s_delta / t_delta) / (1024*1024),2)
+            total_r_trafic = round(current_net_io.bytes_recv / (1024**3),2) 
+            total_s_trafic = round(current_net_io.bytes_sent / (1024**3),2) 
 
 
             current_cores = ()
@@ -238,8 +249,14 @@ class TelemetryThread(QThread):
                     gpu_c_memory_perc = current_vram_percent,
                     cpu_name = self.current_cpu_name,
                     os_name = self.os_name_display,
-                    disk_info = current_disks_list
+                    disk_info = current_disks_list,
+                    net_download_speed = r_delta,
+                    net_upload_speed = s_delta,
+                    net_total_recv = total_r_trafic,
+                    net_total_sent = total_s_trafic
                 )
+                self.last_net_io = current_net_io
+    
                 self.last_disk_io = current_disk_io
                 self.last_time = current_time
                 self.my_signal.emit(data)  

@@ -2,7 +2,7 @@ from settings.palette import Palette
 
 class Config:
     MIN_WIDTH = 700
-    MIN_HEIGHT = 600
+    MIN_HEIGHT = 800
     MAX_WIDTH = 800
     MAX_HEIGHT = 900
 
@@ -34,6 +34,16 @@ class Config:
         }}
         MainWidget QLabel#Header {{
             font-size: 30px;
+            font-weight: bold;
+            color: {Palette.ACCENT_ORANGE}; 
+            margin-bottom: 50px; 
+        }}
+        NetWidget QLabel {{
+            font-size: 25px; 
+            padding: 8px 0px;
+        }}
+        NetWidget QLabel#Header {{
+            font-size: 40px;
             font-weight: bold;
             color: {Palette.ACCENT_ORANGE}; 
             margin-bottom: 50px; 

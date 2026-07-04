@@ -22,3 +22,7 @@ class TelemetryData:
         
         os_name:str = ""
 
+        net_download_speed: float = 0.0
+        net_upload_speed: float = 0.0
+        net_total_recv: float = 0.0
+        net_total_sent: float = 0.0
