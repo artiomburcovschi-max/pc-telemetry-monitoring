@@ -77,7 +77,7 @@ class MainWindow(QMainWindow):
         self.gpu_panel.update_gpu(data.gpu_name,data.gpu_memoryTot,data.gpu_usage,data.gpu_temp,data.gpu_c_memory,data.gpu_c_memory_perc)
         self.disk_panel.update_disk(data.disk_info)
         self.main_data_panel.update_main(data)
-        self.net_panel.update_net(data.net_download_speed,data.net_upload_speed,data.net_total_recv,data.net_total_sent)
+        self.net_panel.update_net(data.net_download_speed,data.net_upload_speed,data.net_total_recv,data.net_total_sent,data.net_ping,data.errors_per_sec,data.drops_per_sec,data.total_errors,data.total_drops)
     def closeEvent(self, event):
         self.telemetry_thread.stop()
         event.accept()

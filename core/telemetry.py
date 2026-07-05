@@ -4,6 +4,7 @@ import os
 import re
 import importlib
 import platform
+import socket
 import psutil
 import GPUtil
 import subprocess
@@ -63,6 +64,16 @@ class TelemetryThread(QThread):
                 return "Unknown Windows"
                 
         return self.os_current
+
+    def _get_ping(self) -> int:
+        try:
+            start_time = time.time()
+            sock = socket.create_connection(("8.8.8.8", 53), timeout = 1.0)
+            sock.close()
+            return round((time.time() - start_time) * 1000)
+        except Exception as e: 
+            print(f"Ping error: {e}")
+            return -1
 
     def _get_cpu_temperature(self) -> float | None:
         if self.os_current == 'Linux':
@@ -149,6 +160,13 @@ class TelemetryThread(QThread):
             total_r_trafic = round(current_net_io.bytes_recv / (1024**3),2) 
             total_s_trafic = round(current_net_io.bytes_sent / (1024**3),2) 
 
+            errors_delta = (current_net_io.errin - self.last_net_io.errin) + (current_net_io.errout - self.last_net_io.errout)
+            drops_delta = (current_net_io.dropin - self.last_net_io.dropin) + (current_net_io.dropout - self.last_net_io.dropout)
+            
+            tot_errors = current_net_io.errin + current_net_io.errout
+            tot_drops = current_net_io.dropin + current_net_io.dropout
+
+            current_ping = self._get_ping()
 
             current_cores = ()
             current_cpu = 0.0
@@ -253,7 +271,12 @@ class TelemetryThread(QThread):
                     net_download_speed = r_delta,
                     net_upload_speed = s_delta,
                     net_total_recv = total_r_trafic,
-                    net_total_sent = total_s_trafic
+                    net_total_sent = total_s_trafic,
+                    net_ping = current_ping,
+                    errors_per_sec = errors_delta,
+                    drops_per_sec = drops_delta,
+                    total_errors = tot_errors,
+                    total_drops = tot_drops
                 )
                 self.last_net_io = current_net_io
     
