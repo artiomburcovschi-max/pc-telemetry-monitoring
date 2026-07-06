@@ -1,35 +1,59 @@
 from PySide6.QtCore import Qt,QSize,Slot,Signal
-from PySide6.QtWidgets import QLabel,QFrame,QVBoxLayout
-
+from PySide6.QtWidgets import QLabel,QFrame,QHBoxLayout,QVBoxLayout,QPushButton,QTableWidget,QWidget
+from PySide6.QtWidgets import QHeaderView
 
 
 class NetWidget(QFrame):
     def __init__(self):
         super().__init__()
 
-        layout = QVBoxLayout(self)
+        layout = QHBoxLayout(self)
         layout.setAlignment(Qt.AlignTop)
         
-        self.title_label = QLabel(self)
-        self.download_speed = QLabel(self)
-        self.upload_speed = QLabel(self)
-        self.total_recv = QLabel(self)
-        self.total_sent = QLabel(self)
-        self.ping_label = QLabel(self)
-        self.errors_label = QLabel(self)
-        self.drops_label = QLabel(self)
+        left_layout = QVBoxLayout()
+        self.current_state = QFrame()
+        self.graphics = QFrame()
+        self.graphics.setObjectName("Graph")
 
+        stats_layout = QVBoxLayout(self.current_state)
+        
+        self.title_label = QLabel(self)
         self.title_label.setText("NET")
         self.title_label.setObjectName("Header")
+        left_layout.addWidget(self.title_label)
+        left_layout.addWidget(self.graphics)
 
-        layout.addWidget(self.title_label)
-        layout.addWidget(self.download_speed)
-        layout.addWidget(self.upload_speed)
-        layout.addWidget(self.total_recv)
-        layout.addWidget(self.total_sent)
-        layout.addWidget(self.ping_label)
-        layout.addWidget(self.errors_label)
-        layout.addWidget(self.drops_label)
+        self.download_speed = QLabel()
+        self.upload_speed = QLabel()
+        self.total_recv =  QLabel()
+        self.total_sent = QLabel()
+        self.ping_label = QLabel()
+        self.errors_label = QLabel()
+        self.drops_label = QLabel()
+        
+        stats_layout.addWidget(self.download_speed)
+        stats_layout.addWidget(self.upload_speed)
+        stats_layout.addWidget(self.total_recv)
+        stats_layout.addWidget(self.total_sent)
+        stats_layout.addWidget(self.ping_label)
+        stats_layout.addWidget(self.errors_label)
+        stats_layout.addWidget(self.drops_label)
+
+        left_layout.addWidget(self.current_state)
+
+
+        right_layout = QVBoxLayout()
+        self.scan_button = QPushButton("Сканировать сеть")
+        self.device_table = QTableWidget(self)
+        self.device_table.setColumnCount(4)
+        self.device_table.setHorizontalHeaderLabels(["IP", "MAC", "Device", "Ping"])
+        self.device_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        
+        right_layout.addWidget(self.scan_button)
+        right_layout.addWidget(self.device_table)
+
+        layout.addLayout(left_layout, stretch=5)
+        layout.addLayout(right_layout, stretch=4)
 
     def update_net(self,download_speed,upload_speed,total_recv,total_sent,ping,errors,tot_errors,drops,tot_drops):
         self.download_speed.setText(f"Download speed:{download_speed} MB/s")

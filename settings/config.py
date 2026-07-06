@@ -39,7 +39,7 @@ class Config:
             margin-bottom: 50px; 
         }}
         NetWidget QLabel {{
-            font-size: 25px; 
+            font-size: 22px; 
             padding: 8px 0px;
         }}
         NetWidget QLabel#Header {{
@@ -47,5 +47,26 @@ class Config:
             font-weight: bold;
             color: {Palette.ACCENT_ORANGE}; 
             margin-bottom: 50px; 
+        }}
+        NetWidget QFrame#Graph {{
+            background-color: {Palette.GRAPH_BLACK}; 
+            margin-bottom: 40px; 
+            border-radius: 9px; 
+            border: 2px solid {Palette.TEXT_MUTED};
+            min-width: 250px;
+            min-height: 320px;
+        }}
+        QTableWidget {{
+            background-color: {Palette.BG_PANEL};
+            padding: 0px;
+            border: 1px solid {Palette.TEXT_MUTED};
+        }}
+        QHeaderView::section {{
+            background-color: {Palette.BG_MAIN};
+            color: {Palette.TEXT_MAIN};
+            padding: 0px;
+            font-family: 'Consolas', monospace;
+            font-size: 12px;
+            border: 1px solid {Palette.TEXT_MUTED};
         }}
     """
