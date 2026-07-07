@@ -1,5 +1,5 @@
-from PySide6.QtCore import Qt,QSize,Slot,Signal
-from PySide6.QtWidgets import QLabel,QFrame,QHBoxLayout,QVBoxLayout,QPushButton,QTableWidget,QWidget
+from PySide6.QtCore import Qt,QSize,Slot,Signal,QProcess
+from PySide6.QtWidgets import QLabel, QFrame, QHBoxLayout, QVBoxLayout,QSizePolicy, QPushButton, QTableWidget, QWidget, QTableWidgetItem
 from PySide6.QtWidgets import QHeaderView
 
 
@@ -8,7 +8,6 @@ class NetWidget(QFrame):
         super().__init__()
 
         layout = QHBoxLayout(self)
-        layout.setAlignment(Qt.AlignTop)
         
         left_layout = QVBoxLayout()
         self.current_state = QFrame()
@@ -44,13 +43,24 @@ class NetWidget(QFrame):
 
         right_layout = QVBoxLayout()
         self.scan_button = QPushButton("Сканировать сеть")
+        self.scan_button.clicked.connect(self.start_scan)
+
         self.device_table = QTableWidget(self)
+        self.device_table.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.device_table.setFrameStyle(QFrame.NoFrame)
         self.device_table.setColumnCount(4)
         self.device_table.setHorizontalHeaderLabels(["IP", "MAC", "Device", "Ping"])
-        self.device_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        header = self.device_table.horizontalHeader()
+        header.setSectionResizeMode(QHeaderView.Interactive)
+        header.setSectionResizeMode(0, QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(1, QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(2, QHeaderView.Stretch)
+        header.setSectionResizeMode(3, QHeaderView.ResizeToContents)
+        header.setFixedHeight(35)
         
         right_layout.addWidget(self.scan_button)
-        right_layout.addWidget(self.device_table)
+        right_layout.addWidget(self.device_table, 1)
+        
 
         layout.addLayout(left_layout, stretch=5)
         layout.addLayout(right_layout, stretch=4)
@@ -63,3 +73,22 @@ class NetWidget(QFrame):
         self.ping_label.setText(f"Ping: {ping} ms")
         self.errors_label.setText(f"Errors: {errors}   ({tot_errors})")
         self.drops_label.setText(f"Drops: {drops}   ({tot_drops})")
+
+    def start_scan(self):
+        self.process = QProcess(self)
+        prog = "./orion_netscan"
+        self.process.start(prog)
+        self.process.readyReadStandardOutput.connect(self.read_scan_output)
+
+    def read_scan_output(self):
+        while self.process.canReadLine():
+            line_bytes = self.process.readLine()
+            line = line_bytes.data().decode('utf-8').strip()
+
+            
+            parts = line.split('|')
+            if len(parts) == 4:
+                row = self.device_table.rowCount()
+                self.device_table.insertRow(row)
+                for i, text in enumerate(parts):
+                    self.device_table.setItem(row, i, QTableWidgetItem(text))

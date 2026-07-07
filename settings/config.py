@@ -51,7 +51,7 @@ class Config:
         NetWidget QFrame#Graph {{
             background-color: {Palette.GRAPH_BLACK}; 
             margin-bottom: 40px; 
-            border-radius: 9px; 
+            border-radius: 8px; 
             border: 2px solid {Palette.TEXT_MUTED};
             min-width: 250px;
             min-height: 320px;
@@ -59,6 +59,7 @@ class Config:
         QTableWidget {{
             background-color: {Palette.BG_PANEL};
             padding: 0px;
+            margin: 0px;
             border: 1px solid {Palette.TEXT_MUTED};
         }}
         QHeaderView::section {{
