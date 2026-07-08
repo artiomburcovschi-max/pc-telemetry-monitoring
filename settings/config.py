@@ -1,9 +1,9 @@
 from settings.palette import Palette
 
 class Config:
-    MIN_WIDTH = 700
+    MIN_WIDTH = 730
     MIN_HEIGHT = 800
-    MAX_WIDTH = 800
+    MAX_WIDTH = 830
     MAX_HEIGHT = 900
 
     style = f"""
@@ -47,14 +47,6 @@ class Config:
             font-weight: bold;
             color: {Palette.ACCENT_ORANGE}; 
             margin-bottom: 50px; 
-        }}
-        NetWidget QFrame#Graph {{
-            background-color: {Palette.GRAPH_BLACK}; 
-            margin-bottom: 40px; 
-            border-radius: 8px; 
-            border: 2px solid {Palette.TEXT_MUTED};
-            min-width: 250px;
-            min-height: 320px;
         }}
         QTableWidget {{
             background-color: {Palette.BG_PANEL};

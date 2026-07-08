@@ -26,8 +26,8 @@ class TelemetryData:
         net_upload_speed: float = 0.0
         net_total_recv: float = 0.0
         net_total_sent: float = 0.0
-        net_ping: int = 0.0
-        errors_per_sec:int  = 0.0
-        drops_per_sec:int  = 0.0
-        total_errors:int  = 0.0
-        total_drops:int  = 0.0
+        net_ping: int = 0
+        errors_per_sec:int  = 0
+        drops_per_sec:int  = 0
+        total_errors:int  = 0
+        total_drops:int  = 0
