@@ -23,17 +23,12 @@ target_include_directories(orion_diagnostics
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
 )
 
-# Линкуем зависимости к самой библиотеке
+# Линкуем зависимости к самой библиотеке (используем PUBLIC, чтобы они летели вверх к исполняемым файлам)
 target_link_libraries(orion_diagnostics PUBLIC ORION::Core Qt6::Core)
 
 if(WIN32)
     target_compile_definitions(orion_diagnostics PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX UNICODE _UNICODE)
     target_link_libraries(orion_diagnostics PRIVATE wevtapi)
-    
-    # Если сборка идет через GCC/MinGW, заставляем линкер читать всю статическую библиотеку целиком
-    if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-        target_link_options(orion_diagnostics INTERFACE "-Wl,--whole-archive" "$<TARGET_FILE:orion_diagnostics>" "-Wl,--no-whole-archive")
-    endif()
 endif()
 
 target_compile_features(orion_diagnostics PUBLIC cxx_std_20)
@@ -41,17 +36,24 @@ target_compile_features(orion_diagnostics PUBLIC cxx_std_20)
 # Описание исполняемого файла утилиты (теста)
 add_executable(orion_golden_contract golden_contract_main.cpp)
 
-# РЕШЕНИЕ ДЛЯ MinGW: Явно импортируем свойства Qt6::Core во время компиляции исполняемого файла.
-# Флаг PRIVATE Qt6::Core здесь обязателен в чистом виде, БЕЗ оберток в группы, 
-# чтобы CMake сгенерировал флаги импорта для DLL.
-target_link_libraries(orion_golden_contract PRIVATE 
-    ORION::Diagnostics 
-    Qt6::Core
-)
-
+# ХАК ДЛЯ MinGW: Дублируем библиотеки Qt6::Core в явном системном порядке
+# Сначала идут ваши исходники, затем Diagnostics, и в самом конце ТРИЖДЫ прописывается Qt
+# Это решает проблему капризного ld.exe без использования ломающих групп.
 if(WIN32 AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    # Дополнительный жесткий импорт рантайма для MinGW, чтобы подцепить toStdString (std::__cxx11)
-    target_link_libraries(orion_golden_contract PRIVATE stdc++ supc++)
+    target_link_libraries(orion_golden_contract PRIVATE 
+        orion_diagnostics
+        Qt6::Core
+        orion_diagnostics
+        Qt6::Core
+        stdc++ 
+        supc++
+    )
+else()
+    # Для MSVC (компилятор в GitHub Actions) оставляем стандартную чистую линковку
+    target_link_libraries(orion_golden_contract PRIVATE 
+        ORION::Diagnostics 
+        Qt6::Core
+    )
 endif()
 
 target_compile_definitions(orion_golden_contract PRIVATE
