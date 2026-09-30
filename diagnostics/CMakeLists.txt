@@ -27,7 +27,7 @@ endif()
 target_compile_features(orion_diagnostics PUBLIC cxx_std_20)
 
 add_executable(orion_golden_contract golden_contract_main.cpp)
-target_link_libraries(orion_golden_contract PRIVATE ORION::Diagnostics)
+target_link_libraries(orion_golden_contract PRIVATE ORION::Diagnostics Qt6::Core)
 
 target_compile_definitions(orion_golden_contract PRIVATE
     ORION_DEFAULT_GOLDEN_FIXTURE="${PROJECT_SOURCE_DIR}/tests/fixtures/diagnostic_golden_cases.json"
