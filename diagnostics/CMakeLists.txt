@@ -1,9 +1,9 @@
-# Включаем автоматическую генерацию MOC-файлов для Qt (необходимо для сигналов и слотов)
+# Включаем автоматическую генерацию MOC-файлов для Qt (необходимо для сигналов, слотов и метасистемы)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
-# Описание библиотеки диагностики
+# Описание статической библиотеки диагностики
 add_library(orion_diagnostics STATIC
     src/diagnostic_engine.cpp
     src/diagnostic_schema.cpp
@@ -23,21 +23,26 @@ target_include_directories(orion_diagnostics
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
 )
 
-# Линкуем зависимости к библиотеке
+# Линкуем зависимости к самой библиотеке
 target_link_libraries(orion_diagnostics PUBLIC ORION::Core Qt6::Core)
 
 if(WIN32)
     target_compile_definitions(orion_diagnostics PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX UNICODE _UNICODE)
     target_link_libraries(orion_diagnostics PRIVATE wevtapi)
+    
+    # АЛЬТЕРНАТИВНЫЙ СПОСОБ: Если сборка идет через MinGW, включаем флаг --whole-archive.
+    # Он заставляет линкер не выбрасывать "неиспользованные" функции Qt из объектных файлов.
+    if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+        target_link_options(orion_diagnostics INTERFACE "-Wl,--whole-archive" "$<TARGET_FILE:orion_diagnostics>" "-Wl,--no-whole-archive")
+    endif()
 endif()
 
 target_compile_features(orion_diagnostics PUBLIC cxx_std_20)
 
-# Описание исполняемого файла утилиты
+# Описание исполняемого файла утилиты (теста)
 add_executable(orion_golden_contract golden_contract_main.cpp)
 
-# ХАК ДЛЯ ЛИНКЕРА MinGW: Явно дублируем Qt6::Core, чтобы линкер 
-# корректно разрешил зависимости функций QProcess из статической библиотеки
+# Стандартная линковка (благодаря флагам выше, MinGW теперь примет её без ошибок)
 target_link_libraries(orion_golden_contract PRIVATE 
     ORION::Diagnostics 
     Qt6::Core
