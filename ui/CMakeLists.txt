@@ -84,8 +84,17 @@ qt_add_executable(orion WIN32
 )
 
 if(WIN32)
-    target_link_libraries(orion PRIVATE d3d11 d3dcompiler dxgi iphlpapi ws2_32
-        wbemuuid ole32 oleaut32)
+    target_link_libraries(orion PRIVATE
+        d3d11
+        d3dcompiler
+        dxgi
+        dxguid
+        iphlpapi
+        ws2_32
+        wbemuuid
+        ole32
+        oleaut32
+    )
 endif()
 
 target_link_libraries(orion
