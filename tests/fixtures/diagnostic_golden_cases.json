@@ -1,0 +1,1675 @@
+[
+  {
+    "name": "occupied swap without paging",
+    "diagnostics": {
+      "smart": {
+        "available": true,
+        "disks": [],
+        "note": null
+      },
+      "log_errors": {
+        "errors": [],
+        "note": "none"
+      },
+      "temperature": {
+        "cpu": {
+          "level": "ok",
+          "duration_seconds": 0
+        },
+        "gpu": {
+          "level": "ok",
+          "duration_seconds": 0
+        }
+      }
+    },
+    "stress_test": {},
+    "hardware": {
+      "ram": {
+        "total_gb": 16
+      },
+      "cpu": {
+        "physical_cores": 8
+      },
+      "gpu": [
+        {
+          "model": "Test GPU"
+        }
+      ],
+      "disks": [
+        {
+          "device": "/dev/test",
+          "mountpoint": "/",
+          "type": "SSD",
+          "is_system": true,
+          "used_percent": 50,
+          "free_gb": 100
+        }
+      ]
+    },
+    "runtime": {
+      "data_quality": "valid",
+      "memory_available_percent": 30,
+      "swap_used_percent": 75,
+      "paging_activity": "idle",
+      "memory_pressure": "not_observed",
+      "page_in_mbps": 0,
+      "page_out_mbps": 0,
+      "sample_seconds": 10
+    },
+    "expected": [
+      {
+        "id": "memory.swap.occupied",
+        "severity": "info",
+        "group_key": "memory"
+      }
+    ],
+    "forbidden_ids": [
+      "memory.pressure.confirmed",
+      "memory.paging.active"
+    ]
+  },
+  {
+    "name": "confirmed memory pressure on system HDD",
+    "diagnostics": {
+      "smart": {
+        "available": true,
+        "disks": [],
+        "note": null
+      },
+      "log_errors": {
+        "errors": [],
+        "note": "none"
+      },
+      "temperature": {
+        "cpu": {
+          "level": "ok",
+          "duration_seconds": 0
+        },
+        "gpu": {
+          "level": "ok",
+          "duration_seconds": 0
+        }
+      }
+    },
+    "stress_test": {},
+    "hardware": {
+      "ram": {
+        "total_gb": 4
+      },
+      "cpu": {
+        "physical_cores": 8
+      },
+      "gpu": [
+        {
+          "model": "Test GPU"
+        }
+      ],
+      "disks": [
+        {
+          "device": "/dev/test",
+          "mountpoint": "/",
+          "type": "HDD",
+          "is_system": true,
+          "used_percent": 50,
+          "free_gb": 100
+        }
+      ]
+    },
+    "runtime": {
+      "data_quality": "valid",
+      "memory_available_percent": 4,
+      "swap_used_percent": 75,
+      "paging_activity": "active",
+      "memory_pressure": "confirmed",
+      "page_in_mbps": 3,
+      "page_out_mbps": 2,
+      "sample_seconds": 10,
+      "paging_sampling_mode": "cumulative_counter_delta"
+    },
+    "expected": [
+      {
+        "id": "memory.pressure.confirmed",
+        "severity": "critical",
+        "confidence": "high",
+        "group_key": "memory"
+      }
+    ],
+    "forbidden_ids": [
+      "memory.capacity",
+      "memory.pressure.runtime"
+    ]
+  },
+  {
+    "name": "missing temperature sensors",
+    "diagnostics": {
+      "smart": {
+        "available": true,
+        "disks": [],
+        "note": null
+      },
+      "log_errors": {
+        "errors": [],
+        "note": "none"
+      },
+      "temperature": {
+        "cpu": {
+          "level": "unknown",
+          "duration_seconds": 0
+        },
+        "gpu": {
+          "level": "unknown",
+          "duration_seconds": 0
+        }
+      }
+    },
+    "stress_test": {},
+    "hardware": null,
+    "runtime": null,
+    "expected": [
+      {
+        "id": "coverage.temperature",
+        "severity": "info",
+        "status": "unknown"
+      }
+    ],
+    "forbidden_ids": []
+  },
+  {
+    "name": "HDD forty megabytes is not automatically broken",
+    "diagnostics": {
+      "smart": {
+        "available": true,
+        "disks": [],
+        "note": null
+      },
+      "log_errors": {
+        "errors": [],
+        "note": "none"
+      },
+      "temperature": {
+        "cpu": {
+          "level": "ok",
+          "duration_seconds": 0
+        },
+        "gpu": {
+          "level": "ok",
+          "duration_seconds": 0
+        }
+      }
+    },
+    "stress_test": {
+      "run_disk": true,
+      "disk_write_mbps": 40,
+      "disk_fsync_applied": true,
+      "disk_data_verified": true,
+      "disk_target_mountpoint": "/"
+    },
+    "hardware": {
+      "ram": {
+        "total_gb": 16
+      },
+      "cpu": {
+        "physical_cores": 8
+      },
+      "gpu": [
+        {
+          "model": "Test GPU"
+        }
+      ],
+      "disks": [
+        {
+          "device": "/dev/test",
+          "mountpoint": "/",
+          "type": "HDD",
+          "is_system": true,
+          "used_percent": 50,
+          "free_gb": 100
+        }
+      ]
+    },
+    "runtime": null,
+    "expected": [],
+    "forbidden_ids": [
+      "stress.disk.slow_write"
+    ]
+  },
+  {
+    "name": "SSD forty megabytes is suspicious",
+    "diagnostics": {
+      "smart": {
+        "available": true,
+        "disks": [],
+        "note": null
+      },
+      "log_errors": {
+        "errors": [],
+        "note": "none"
+      },
+      "temperature": {
+        "cpu": {
+          "level": "ok",
+          "duration_seconds": 0
+        },
+        "gpu": {
+          "level": "ok",
+          "duration_seconds": 0
+        }
+      }
+    },
+    "stress_test": {
+      "run_disk": true,
+      "disk_write_mbps": 40,
+      "disk_fsync_applied": true,
+      "disk_data_verified": true,
+      "disk_target_mountpoint": "/"
+    },
+    "hardware": {
+      "ram": {
+        "total_gb": 16
+      },
+      "cpu": {
+        "physical_cores": 8
+      },
+      "gpu": [
+        {
+          "model": "Test GPU"
+        }
+      ],
+      "disks": [
+        {
+          "device": "/dev/test",
+          "mountpoint": "/",
+          "type": "SSD",
+          "is_system": true,
+          "used_percent": 50,
+          "free_gb": 100
+        }
+      ]
+    },
+    "runtime": null,
+    "expected": [
+      {
+        "id": "stress.disk.slow_write",
+        "severity": "warning",
+        "confidence": "medium"
+      }
+    ],
+    "forbidden_ids": []
+  },
+  {
+    "name": "disk hash mismatch without speed",
+    "diagnostics": {
+      "smart": {
+        "available": true,
+        "disks": [],
+        "note": null
+      },
+      "log_errors": {
+        "errors": [],
+        "note": "none"
+      },
+      "temperature": {
+        "cpu": {
+          "level": "ok",
+          "duration_seconds": 0
+        },
+        "gpu": {
+          "level": "ok",
+          "duration_seconds": 0
+        }
+      }
+    },
+    "stress_test": {
+      "run_disk": true,
+      "disk_write_mbps": null,
+      "disk_fsync_applied": true,
+      "disk_data_verified": false
+    },
+    "hardware": null,
+    "runtime": null,
+    "expected": [
+      {
+        "id": "stress.disk.data_mismatch",
+        "severity": "critical",
+        "urgency": "immediate"
+      }
+    ],
+    "forbidden_ids": []
+  },
+  {
+    "name": "new WHEA after load wins causal group",
+    "diagnostics": {
+      "smart": {
+        "available": true,
+        "disks": [],
+        "note": null
+      },
+      "log_errors": {
+        "errors": [
+          "2026-08-27 WHEA-Logger hardware error",
+          "2026-08-27 WHEA-Logger hardware error"
+        ],
+        "note": null
+      },
+      "temperature": {
+        "cpu": {
+          "level": "ok",
+          "duration_seconds": 0
+        },
+        "gpu": {
+          "level": "ok",
+          "duration_seconds": 0
+        }
+      }
+    },
+    "stress_test": {
+      "new_system_errors": [
+        "2026-08-27T20:00 WHEA-Logger hardware error",
+        "2026-08-27T20:01 WHEA-Logger hardware error"
+      ]
+    },
+    "hardware": null,
+    "runtime": null,
+    "expected": [
+      {
+        "id": "stress.new_system_errors",
+        "severity": "critical",
+        "confidence": "high",
+        "group_key": "logs.whea"
+      }
+    ],
+    "forbidden_ids": []
+  },
+  {
+    "name": "memory filesystem cannot benchmark physical disk",
+    "diagnostics": {
+      "smart": {
+        "available": true,
+        "disks": [],
+        "note": null
+      },
+      "log_errors": {
+        "errors": [],
+        "note": "none"
+      },
+      "temperature": {
+        "cpu": {
+          "level": "ok",
+          "duration_seconds": 0
+        },
+        "gpu": {
+          "level": "ok",
+          "duration_seconds": 0
+        }
+      }
+    },
+    "stress_test": {
+      "run_disk": true,
+      "disk_write_mbps": 5,
+      "disk_fsync_applied": true,
+      "disk_data_verified": true,
+      "disk_target_mountpoint": "/tmp",
+      "disk_target_fstype": "tmpfs",
+      "disk_target_is_memory_fs": true
+    },
+    "hardware": null,
+    "runtime": null,
+    "expected": [
+      {
+        "id": "coverage.stress_disk_memory_fs",
+        "severity": "info",
+        "status": "unknown"
+      }
+    ],
+    "forbidden_ids": [
+      "stress.disk.slow_write"
+    ]
+  },
+  {
+    "name": "measured CPU throttling",
+    "diagnostics": {
+      "smart": {
+        "available": true,
+        "disks": [],
+        "note": null
+      },
+      "log_errors": {
+        "errors": [],
+        "note": "none"
+      },
+      "temperature": {
+        "cpu": {
+          "level": "ok",
+          "duration_seconds": 0
+        },
+        "gpu": {
+          "level": "ok",
+          "duration_seconds": 0
+        }
+      }
+    },
+    "stress_test": {
+      "run_cpu": true,
+      "cpu_load_avg_percent": 98,
+      "cpu_load_peak_percent": 100,
+      "cpu_load_sample_count": 20,
+      "cpu_frequency_sample_count": 20,
+      "cpu_temperature_sample_count": 20,
+      "cpu_workload_sample_count": 20,
+      "cpu_worker_failures": 0,
+      "cpu_throttling_suspected": true,
+      "cpu_throttling_confidence": "high",
+      "cpu_max_temp_c": 94,
+      "cpu_frequency_drop_percent": 20,
+      "cpu_workload_drop_percent": 25
+    },
+    "hardware": null,
+    "runtime": null,
+    "expected": [
+      {
+        "id": "stress.cpu.throttling",
+        "severity": "warning",
+        "confidence": "high",
+        "group_key": "cooling.cpu"
+      }
+    ],
+    "forbidden_ids": [
+      "stress.cpu.no_telemetry"
+    ]
+  },
+  {
+    "name": "single reallocated sector is observation not failure",
+    "diagnostics": {
+      "smart": {
+        "available": true,
+        "note": null,
+        "disks": [
+          {
+            "model": "Fixture SSD",
+            "health": "PASSED",
+            "reallocated": 1,
+            "pending": 0,
+            "uncorrectable": 0,
+            "temperature_c": 35,
+            "temperature_level": "ok",
+            "level": "warning",
+            "data_quality": "valid",
+            "risk_reasons": [
+              {
+                "code": "reallocated_sectors",
+                "severity": "warning",
+                "text": "есть переназначенные сектора",
+                "value": 1
+              }
+            ],
+            "note": null,
+            "device": "/dev/sda"
+          }
+        ]
+      },
+      "log_errors": {
+        "errors": [],
+        "note": "none"
+      },
+      "temperature": {
+        "cpu": {
+          "level": "ok",
+          "duration_seconds": 0
+        },
+        "gpu": {
+          "level": "ok",
+          "duration_seconds": 0
+        }
+      }
+    },
+    "stress_test": {},
+    "hardware": null,
+    "runtime": null,
+    "expected": [
+      {
+        "id": "storage./dev/sda.warning",
+        "status": "warning",
+        "severity": "warning",
+        "urgency": "monitor",
+        "group_key": "storage./dev/sda"
+      }
+    ],
+    "forbidden_ids": []
+  },
+  {
+    "name": "pending sector is immediate storage risk",
+    "diagnostics": {
+      "smart": {
+        "available": true,
+        "note": null,
+        "disks": [
+          {
+            "model": "Fixture HDD",
+            "health": "PASSED",
+            "reallocated": 0,
+            "pending": 2,
+            "uncorrectable": 0,
+            "temperature_c": 35,
+            "temperature_level": "ok",
+            "level": "critical",
+            "data_quality": "valid",
+            "risk_reasons": [
+              {
+                "code": "pending_sectors",
+                "severity": "critical",
+                "text": "есть нестабильные pending-сектора",
+                "value": 2
+              }
+            ],
+            "note": null,
+            "device": "/dev/sda"
+          }
+        ]
+      },
+      "log_errors": {
+        "errors": [],
+        "note": "none"
+      },
+      "temperature": {
+        "cpu": {
+          "level": "ok",
+          "duration_seconds": 0
+        },
+        "gpu": {
+          "level": "ok",
+          "duration_seconds": 0
+        }
+      }
+    },
+    "stress_test": {},
+    "hardware": null,
+    "runtime": null,
+    "expected": [
+      {
+        "id": "storage./dev/sda.critical",
+        "status": "fail",
+        "severity": "critical",
+        "urgency": "immediate",
+        "group_key": "storage./dev/sda"
+      }
+    ],
+    "forbidden_ids": []
+  },
+  {
+    "name": "incident memory pressure with app contributor",
+    "diagnostics": {
+      "smart": {
+        "available": true,
+        "disks": [],
+        "note": null
+      },
+      "log_errors": {
+        "errors": [],
+        "note": "none"
+      },
+      "temperature": {
+        "cpu": {
+          "level": "ok",
+          "duration_seconds": 0
+        },
+        "gpu": {
+          "level": "ok",
+          "duration_seconds": 0
+        }
+      }
+    },
+    "stress_test": {},
+    "hardware": null,
+    "runtime": null,
+    "incident": {
+      "status": "complete",
+      "summary": {
+        "data_quality": "valid",
+        "sample_count": 75,
+        "before_sample_count": 60,
+        "after_sample_count": 15,
+        "focus_sample_count": 16,
+        "missing_metrics": [],
+        "baseline": {
+          "cpu_usage_percent": {
+            "count": 10,
+            "min": 40,
+            "max": 40,
+            "avg": 40,
+            "p95": 40,
+            "last": 40,
+            "above_90_fraction": 0.0
+          },
+          "cpu_freq_mhz": {
+            "count": 10,
+            "min": 4000,
+            "max": 4000,
+            "avg": 4000,
+            "p95": 4000,
+            "last": 4000,
+            "above_90_fraction": 0.0
+          },
+          "cpu_temp_c": {
+            "count": 10,
+            "min": 55,
+            "max": 55,
+            "avg": 55,
+            "p95": 55,
+            "last": 55,
+            "above_90_fraction": 0.0
+          },
+          "ram_used_percent": {
+            "count": 10,
+            "min": 60,
+            "max": 60,
+            "avg": 60,
+            "p95": 60,
+            "last": 60,
+            "above_90_fraction": 0.0
+          },
+          "gpu_usage_percent": {
+            "count": 10,
+            "min": 30,
+            "max": 30,
+            "avg": 30,
+            "p95": 30,
+            "last": 30,
+            "above_90_fraction": 0.0
+          },
+          "gpu_temp_c": {
+            "count": 10,
+            "min": 60,
+            "max": 60,
+            "avg": 60,
+            "p95": 60,
+            "last": 60,
+            "above_90_fraction": 0.0
+          },
+          "gpu_vram_used_percent": {
+            "count": 10,
+            "min": 40,
+            "max": 40,
+            "avg": 40,
+            "p95": 40,
+            "last": 40,
+            "above_90_fraction": 0.0
+          },
+          "disk_read_mbps": {
+            "count": 10,
+            "min": 2,
+            "max": 2,
+            "avg": 2,
+            "p95": 2,
+            "last": 2,
+            "above_90_fraction": 0.0
+          },
+          "disk_write_mbps": {
+            "count": 10,
+            "min": 1,
+            "max": 1,
+            "avg": 1,
+            "p95": 1,
+            "last": 1,
+            "above_90_fraction": 0.0
+          },
+          "net_download_mbps": {
+            "count": 10,
+            "min": 5,
+            "max": 5,
+            "avg": 5,
+            "p95": 5,
+            "last": 5,
+            "above_90_fraction": 0.0
+          },
+          "net_upload_mbps": {
+            "count": 10,
+            "min": 1,
+            "max": 1,
+            "avg": 1,
+            "p95": 1,
+            "last": 1,
+            "above_90_fraction": 0.0
+          },
+          "net_ping_ms": {
+            "count": 10,
+            "min": 25,
+            "max": 25,
+            "avg": 25,
+            "p95": 25,
+            "last": 25,
+            "above_90_fraction": 0.0
+          }
+        },
+        "focus": {
+          "cpu_usage_percent": {
+            "count": 10,
+            "min": 40,
+            "max": 40,
+            "avg": 40,
+            "p95": 40,
+            "last": 40,
+            "above_90_fraction": 0.0
+          },
+          "cpu_freq_mhz": {
+            "count": 10,
+            "min": 4000,
+            "max": 4000,
+            "avg": 4000,
+            "p95": 4000,
+            "last": 4000,
+            "above_90_fraction": 0.0
+          },
+          "cpu_temp_c": {
+            "count": 10,
+            "min": 55,
+            "max": 55,
+            "avg": 55,
+            "p95": 55,
+            "last": 55,
+            "above_90_fraction": 0.0
+          },
+          "ram_used_percent": {
+            "count": 10,
+            "min": 98,
+            "max": 98,
+            "avg": 98,
+            "p95": 98,
+            "last": 98,
+            "above_90_fraction": 0.0
+          },
+          "gpu_usage_percent": {
+            "count": 10,
+            "min": 30,
+            "max": 30,
+            "avg": 30,
+            "p95": 30,
+            "last": 30,
+            "above_90_fraction": 0.0
+          },
+          "gpu_temp_c": {
+            "count": 10,
+            "min": 60,
+            "max": 60,
+            "avg": 60,
+            "p95": 60,
+            "last": 60,
+            "above_90_fraction": 0.0
+          },
+          "gpu_vram_used_percent": {
+            "count": 10,
+            "min": 40,
+            "max": 40,
+            "avg": 40,
+            "p95": 40,
+            "last": 40,
+            "above_90_fraction": 0.0
+          },
+          "disk_read_mbps": {
+            "count": 10,
+            "min": 2,
+            "max": 2,
+            "avg": 2,
+            "p95": 2,
+            "last": 2,
+            "above_90_fraction": 0.0
+          },
+          "disk_write_mbps": {
+            "count": 10,
+            "min": 1,
+            "max": 1,
+            "avg": 1,
+            "p95": 1,
+            "last": 1,
+            "above_90_fraction": 0.0
+          },
+          "net_download_mbps": {
+            "count": 10,
+            "min": 5,
+            "max": 5,
+            "avg": 5,
+            "p95": 5,
+            "last": 5,
+            "above_90_fraction": 0.0
+          },
+          "net_upload_mbps": {
+            "count": 10,
+            "min": 1,
+            "max": 1,
+            "avg": 1,
+            "p95": 1,
+            "last": 1,
+            "above_90_fraction": 0.0
+          },
+          "net_ping_ms": {
+            "count": 10,
+            "min": 25,
+            "max": 25,
+            "avg": 25,
+            "p95": 25,
+            "last": 25,
+            "above_90_fraction": 0.0
+          }
+        },
+        "recovery": {
+          "cpu_usage_percent": {
+            "count": 10,
+            "min": 40,
+            "max": 40,
+            "avg": 40,
+            "p95": 40,
+            "last": 40,
+            "above_90_fraction": 0.0
+          },
+          "cpu_freq_mhz": {
+            "count": 10,
+            "min": 4000,
+            "max": 4000,
+            "avg": 4000,
+            "p95": 4000,
+            "last": 4000,
+            "above_90_fraction": 0.0
+          },
+          "cpu_temp_c": {
+            "count": 10,
+            "min": 55,
+            "max": 55,
+            "avg": 55,
+            "p95": 55,
+            "last": 55,
+            "above_90_fraction": 0.0
+          },
+          "ram_used_percent": {
+            "count": 10,
+            "min": 60,
+            "max": 60,
+            "avg": 60,
+            "p95": 60,
+            "last": 60,
+            "above_90_fraction": 0.0
+          },
+          "gpu_usage_percent": {
+            "count": 10,
+            "min": 30,
+            "max": 30,
+            "avg": 30,
+            "p95": 30,
+            "last": 30,
+            "above_90_fraction": 0.0
+          },
+          "gpu_temp_c": {
+            "count": 10,
+            "min": 60,
+            "max": 60,
+            "avg": 60,
+            "p95": 60,
+            "last": 60,
+            "above_90_fraction": 0.0
+          },
+          "gpu_vram_used_percent": {
+            "count": 10,
+            "min": 40,
+            "max": 40,
+            "avg": 40,
+            "p95": 40,
+            "last": 40,
+            "above_90_fraction": 0.0
+          },
+          "disk_read_mbps": {
+            "count": 10,
+            "min": 2,
+            "max": 2,
+            "avg": 2,
+            "p95": 2,
+            "last": 2,
+            "above_90_fraction": 0.0
+          },
+          "disk_write_mbps": {
+            "count": 10,
+            "min": 1,
+            "max": 1,
+            "avg": 1,
+            "p95": 1,
+            "last": 1,
+            "above_90_fraction": 0.0
+          },
+          "net_download_mbps": {
+            "count": 10,
+            "min": 5,
+            "max": 5,
+            "avg": 5,
+            "p95": 5,
+            "last": 5,
+            "above_90_fraction": 0.0
+          },
+          "net_upload_mbps": {
+            "count": 10,
+            "min": 1,
+            "max": 1,
+            "avg": 1,
+            "p95": 1,
+            "last": 1,
+            "above_90_fraction": 0.0
+          },
+          "net_ping_ms": {
+            "count": 10,
+            "min": 25,
+            "max": 25,
+            "avg": 25,
+            "p95": 25,
+            "last": 25,
+            "above_90_fraction": 0.0
+          }
+        },
+        "cpu_frequency_drop_percent": 0,
+        "focus_net_error_count": 0,
+        "focus_net_drop_count": 0,
+        "app": {
+          "exe_path": "C:/Games/game.exe",
+          "sample_count": 16,
+          "process_count_peak": 4,
+          "ram_share_percent": {
+            "count": 10,
+            "min": 24,
+            "max": 24,
+            "avg": 24,
+            "p95": 24,
+            "last": 24,
+            "above_90_fraction": 0.0
+          },
+          "ram_mb": {
+            "count": 10,
+            "min": 3800,
+            "max": 3800,
+            "avg": 3800,
+            "p95": 3800,
+            "last": 3800,
+            "above_90_fraction": 0.0
+          },
+          "cpu_percent": {
+            "count": 10,
+            "min": 35,
+            "max": 35,
+            "avg": 35,
+            "p95": 35,
+            "last": 35,
+            "above_90_fraction": 0.0
+          },
+          "read_mbps": {
+            "count": 10,
+            "min": 2,
+            "max": 2,
+            "avg": 2,
+            "p95": 2,
+            "last": 2,
+            "above_90_fraction": 0.0
+          },
+          "write_mbps": {
+            "count": 10,
+            "min": 1,
+            "max": 1,
+            "avg": 1,
+            "p95": 1,
+            "last": 1,
+            "above_90_fraction": 0.0
+          },
+          "system_disk_busy_percent": {
+            "count": 10,
+            "min": 30,
+            "max": 30,
+            "avg": 30,
+            "p95": 30,
+            "last": 30,
+            "above_90_fraction": 0.0
+          }
+        }
+      },
+      "runtime_memory": {
+        "memory_pressure": "confirmed",
+        "paging_activity": "active",
+        "memory_available_percent": 3,
+        "swap_used_percent": 80,
+        "page_in_mbps": 20,
+        "page_out_mbps": 7,
+        "data_quality": "valid"
+      }
+    },
+    "expected": [
+      {
+        "id": "incident.memory.app_contributor",
+        "severity": "critical",
+        "confidence": "high",
+        "group_key": "memory"
+      }
+    ],
+    "forbidden_ids": [
+      "incident.memory.possible"
+    ]
+  },
+  {
+    "name": "incident thermal throttling around user marker",
+    "diagnostics": {
+      "smart": {
+        "available": true,
+        "disks": [],
+        "note": null
+      },
+      "log_errors": {
+        "errors": [],
+        "note": "none"
+      },
+      "temperature": {
+        "cpu": {
+          "level": "ok",
+          "duration_seconds": 0
+        },
+        "gpu": {
+          "level": "ok",
+          "duration_seconds": 0
+        }
+      }
+    },
+    "stress_test": {},
+    "hardware": null,
+    "runtime": null,
+    "incident": {
+      "status": "complete",
+      "summary": {
+        "data_quality": "valid",
+        "sample_count": 75,
+        "before_sample_count": 60,
+        "after_sample_count": 15,
+        "focus_sample_count": 16,
+        "missing_metrics": [],
+        "baseline": {
+          "cpu_usage_percent": {
+            "count": 10,
+            "min": 40,
+            "max": 40,
+            "avg": 40,
+            "p95": 40,
+            "last": 40,
+            "above_90_fraction": 0.0
+          },
+          "cpu_freq_mhz": {
+            "count": 10,
+            "min": 4000,
+            "max": 4000,
+            "avg": 4000,
+            "p95": 4000,
+            "last": 4000,
+            "above_90_fraction": 0.0
+          },
+          "cpu_temp_c": {
+            "count": 10,
+            "min": 55,
+            "max": 55,
+            "avg": 55,
+            "p95": 55,
+            "last": 55,
+            "above_90_fraction": 0.0
+          },
+          "ram_used_percent": {
+            "count": 10,
+            "min": 60,
+            "max": 60,
+            "avg": 60,
+            "p95": 60,
+            "last": 60,
+            "above_90_fraction": 0.0
+          },
+          "gpu_usage_percent": {
+            "count": 10,
+            "min": 30,
+            "max": 30,
+            "avg": 30,
+            "p95": 30,
+            "last": 30,
+            "above_90_fraction": 0.0
+          },
+          "gpu_temp_c": {
+            "count": 10,
+            "min": 60,
+            "max": 60,
+            "avg": 60,
+            "p95": 60,
+            "last": 60,
+            "above_90_fraction": 0.0
+          },
+          "gpu_vram_used_percent": {
+            "count": 10,
+            "min": 40,
+            "max": 40,
+            "avg": 40,
+            "p95": 40,
+            "last": 40,
+            "above_90_fraction": 0.0
+          },
+          "disk_read_mbps": {
+            "count": 10,
+            "min": 2,
+            "max": 2,
+            "avg": 2,
+            "p95": 2,
+            "last": 2,
+            "above_90_fraction": 0.0
+          },
+          "disk_write_mbps": {
+            "count": 10,
+            "min": 1,
+            "max": 1,
+            "avg": 1,
+            "p95": 1,
+            "last": 1,
+            "above_90_fraction": 0.0
+          },
+          "net_download_mbps": {
+            "count": 10,
+            "min": 5,
+            "max": 5,
+            "avg": 5,
+            "p95": 5,
+            "last": 5,
+            "above_90_fraction": 0.0
+          },
+          "net_upload_mbps": {
+            "count": 10,
+            "min": 1,
+            "max": 1,
+            "avg": 1,
+            "p95": 1,
+            "last": 1,
+            "above_90_fraction": 0.0
+          },
+          "net_ping_ms": {
+            "count": 10,
+            "min": 25,
+            "max": 25,
+            "avg": 25,
+            "p95": 25,
+            "last": 25,
+            "above_90_fraction": 0.0
+          }
+        },
+        "focus": {
+          "cpu_usage_percent": {
+            "count": 10,
+            "min": 97,
+            "max": 97,
+            "avg": 97,
+            "p95": 97,
+            "last": 97,
+            "above_90_fraction": 0.9
+          },
+          "cpu_freq_mhz": {
+            "count": 10,
+            "min": 4000,
+            "max": 4000,
+            "avg": 4000,
+            "p95": 4000,
+            "last": 4000,
+            "above_90_fraction": 0.0
+          },
+          "cpu_temp_c": {
+            "count": 10,
+            "min": 96,
+            "max": 96,
+            "avg": 96,
+            "p95": 96,
+            "last": 96,
+            "above_90_fraction": 0.0
+          },
+          "ram_used_percent": {
+            "count": 10,
+            "min": 60,
+            "max": 60,
+            "avg": 60,
+            "p95": 60,
+            "last": 60,
+            "above_90_fraction": 0.0
+          },
+          "gpu_usage_percent": {
+            "count": 10,
+            "min": 30,
+            "max": 30,
+            "avg": 30,
+            "p95": 30,
+            "last": 30,
+            "above_90_fraction": 0.0
+          },
+          "gpu_temp_c": {
+            "count": 10,
+            "min": 60,
+            "max": 60,
+            "avg": 60,
+            "p95": 60,
+            "last": 60,
+            "above_90_fraction": 0.0
+          },
+          "gpu_vram_used_percent": {
+            "count": 10,
+            "min": 40,
+            "max": 40,
+            "avg": 40,
+            "p95": 40,
+            "last": 40,
+            "above_90_fraction": 0.0
+          },
+          "disk_read_mbps": {
+            "count": 10,
+            "min": 2,
+            "max": 2,
+            "avg": 2,
+            "p95": 2,
+            "last": 2,
+            "above_90_fraction": 0.0
+          },
+          "disk_write_mbps": {
+            "count": 10,
+            "min": 1,
+            "max": 1,
+            "avg": 1,
+            "p95": 1,
+            "last": 1,
+            "above_90_fraction": 0.0
+          },
+          "net_download_mbps": {
+            "count": 10,
+            "min": 5,
+            "max": 5,
+            "avg": 5,
+            "p95": 5,
+            "last": 5,
+            "above_90_fraction": 0.0
+          },
+          "net_upload_mbps": {
+            "count": 10,
+            "min": 1,
+            "max": 1,
+            "avg": 1,
+            "p95": 1,
+            "last": 1,
+            "above_90_fraction": 0.0
+          },
+          "net_ping_ms": {
+            "count": 10,
+            "min": 25,
+            "max": 25,
+            "avg": 25,
+            "p95": 25,
+            "last": 25,
+            "above_90_fraction": 0.0
+          }
+        },
+        "recovery": {
+          "cpu_usage_percent": {
+            "count": 10,
+            "min": 40,
+            "max": 40,
+            "avg": 40,
+            "p95": 40,
+            "last": 40,
+            "above_90_fraction": 0.0
+          },
+          "cpu_freq_mhz": {
+            "count": 10,
+            "min": 4000,
+            "max": 4000,
+            "avg": 4000,
+            "p95": 4000,
+            "last": 4000,
+            "above_90_fraction": 0.0
+          },
+          "cpu_temp_c": {
+            "count": 10,
+            "min": 55,
+            "max": 55,
+            "avg": 55,
+            "p95": 55,
+            "last": 55,
+            "above_90_fraction": 0.0
+          },
+          "ram_used_percent": {
+            "count": 10,
+            "min": 60,
+            "max": 60,
+            "avg": 60,
+            "p95": 60,
+            "last": 60,
+            "above_90_fraction": 0.0
+          },
+          "gpu_usage_percent": {
+            "count": 10,
+            "min": 30,
+            "max": 30,
+            "avg": 30,
+            "p95": 30,
+            "last": 30,
+            "above_90_fraction": 0.0
+          },
+          "gpu_temp_c": {
+            "count": 10,
+            "min": 60,
+            "max": 60,
+            "avg": 60,
+            "p95": 60,
+            "last": 60,
+            "above_90_fraction": 0.0
+          },
+          "gpu_vram_used_percent": {
+            "count": 10,
+            "min": 40,
+            "max": 40,
+            "avg": 40,
+            "p95": 40,
+            "last": 40,
+            "above_90_fraction": 0.0
+          },
+          "disk_read_mbps": {
+            "count": 10,
+            "min": 2,
+            "max": 2,
+            "avg": 2,
+            "p95": 2,
+            "last": 2,
+            "above_90_fraction": 0.0
+          },
+          "disk_write_mbps": {
+            "count": 10,
+            "min": 1,
+            "max": 1,
+            "avg": 1,
+            "p95": 1,
+            "last": 1,
+            "above_90_fraction": 0.0
+          },
+          "net_download_mbps": {
+            "count": 10,
+            "min": 5,
+            "max": 5,
+            "avg": 5,
+            "p95": 5,
+            "last": 5,
+            "above_90_fraction": 0.0
+          },
+          "net_upload_mbps": {
+            "count": 10,
+            "min": 1,
+            "max": 1,
+            "avg": 1,
+            "p95": 1,
+            "last": 1,
+            "above_90_fraction": 0.0
+          },
+          "net_ping_ms": {
+            "count": 10,
+            "min": 25,
+            "max": 25,
+            "avg": 25,
+            "p95": 25,
+            "last": 25,
+            "above_90_fraction": 0.0
+          }
+        },
+        "cpu_frequency_drop_percent": 25,
+        "focus_net_error_count": 0,
+        "focus_net_drop_count": 0,
+        "app": null
+      }
+    },
+    "expected": [
+      {
+        "id": "incident.cpu.thermal_throttling",
+        "severity": "critical",
+        "confidence": "high",
+        "group_key": "cooling.cpu"
+      }
+    ]
+  },
+  {
+    "name": "application crash with new WHEA event",
+    "diagnostics": {
+      "smart": {
+        "available": true,
+        "disks": [],
+        "note": null
+      },
+      "log_errors": {
+        "errors": [],
+        "note": "none"
+      },
+      "temperature": {
+        "cpu": {
+          "level": "ok",
+          "duration_seconds": 0
+        },
+        "gpu": {
+          "level": "ok",
+          "duration_seconds": 0
+        }
+      }
+    },
+    "stress_test": {},
+    "hardware": null,
+    "runtime": null,
+    "app_monitor": {
+      "exe_path": "C:/Games/game.exe",
+      "samples": [
+        {
+          "cpu_percent": 50,
+          "ram_mb": 1200
+        }
+      ],
+      "summary": {
+        "sample_count": 12
+      },
+      "exited_early": true,
+      "exit_code": -1073741819,
+      "new_system_errors": [
+        "WHEA-Logger Event ID 18 Machine Check"
+      ]
+    },
+    "expected": [
+      {
+        "id": "app.crash.whea",
+        "severity": "critical",
+        "confidence": "high",
+        "group_key": "stability.hardware"
+      }
+    ],
+    "forbidden_ids": [
+      "app.crash"
+    ]
+  },
+  {
+    "name": "storage causal chain across SMART write and system log",
+    "diagnostics": {
+      "smart": {
+        "available": true,
+        "note": null,
+        "disks": [
+          {
+            "device": "/dev/sda",
+            "model": "Test SSD",
+            "level": "critical",
+            "health": "FAILED",
+            "disk_type": "SSD",
+            "reallocated": 0,
+            "pending": 2,
+            "uncorrectable": 1,
+            "temperature_c": 45,
+            "risk_reasons": [
+              {
+                "severity": "critical",
+                "text": "pending sectors"
+              }
+            ]
+          }
+        ]
+      },
+      "log_errors": {
+        "errors": [
+          "disk I/O error on /dev/sda"
+        ],
+        "note": null
+      },
+      "temperature": {
+        "cpu": {
+          "level": "ok",
+          "duration_seconds": 0
+        },
+        "gpu": {
+          "level": "ok",
+          "duration_seconds": 0
+        }
+      }
+    },
+    "stress_test": {
+      "run_disk": true,
+      "disk_target_device": "/dev/sda",
+      "disk_target_type": "SSD",
+      "disk_fsync_applied": true,
+      "disk_target_is_memory_fs": false,
+      "disk_write_mbps": 25,
+      "disk_data_verified": true
+    },
+    "hardware": null,
+    "runtime": null,
+    "expected": [
+      {
+        "id": "causal.storage.degradation",
+        "severity": "critical",
+        "confidence": "high",
+        "impact": "data_loss"
+      }
+    ]
+  },
+  {
+    "name": "worker failure plus WHEA is hardware instability",
+    "diagnostics": {
+      "smart": {
+        "available": true,
+        "disks": [],
+        "note": null
+      },
+      "log_errors": {
+        "errors": [],
+        "note": "none"
+      },
+      "temperature": {
+        "cpu": {
+          "level": "ok",
+          "duration_seconds": 0
+        },
+        "gpu": {
+          "level": "ok",
+          "duration_seconds": 0
+        }
+      }
+    },
+    "stress_test": {
+      "run_cpu": true,
+      "cpu_load_sample_count": 10,
+      "cpu_load_avg_percent": 95,
+      "cpu_worker_failures": 2,
+      "new_system_errors": [
+        "WHEA Machine Check Event 18"
+      ],
+      "system_errors_checked_after": true
+    },
+    "hardware": null,
+    "runtime": null,
+    "expected": [
+      {
+        "id": "causal.hardware_instability",
+        "severity": "critical",
+        "confidence": "high",
+        "group_key": "stability.hardware"
+      }
+    ]
+  },
+  {
+    "name": "Windows hard faults with ample RAM are not pagefile pressure",
+    "diagnostics": {
+      "smart": {
+        "available": true,
+        "disks": [],
+        "note": null
+      },
+      "log_errors": {
+        "errors": [],
+        "note": "none"
+      },
+      "temperature": {
+        "cpu": {
+          "level": "unknown",
+          "duration_seconds": 0
+        },
+        "gpu": {
+          "level": "ok",
+          "duration_seconds": 0
+        }
+      }
+    },
+    "stress_test": {},
+    "hardware": {
+      "ram": {
+        "total_gb": 31.7
+      },
+      "cpu": {
+        "physical_cores": 14
+      },
+      "gpu": [
+        {
+          "model": "NVIDIA GeForce RTX 4060 Ti"
+        }
+      ],
+      "disks": [
+        {
+          "device": "C:",
+          "mountpoint": "C:\\",
+          "type": "SSD",
+          "is_system": true,
+          "used_percent": 29.5,
+          "free_gb": 656.3
+        }
+      ]
+    },
+    "runtime": {
+      "data_quality": "estimated",
+      "memory_available_percent": 51.61,
+      "memory_used_percent": 48.39,
+      "swap_used_percent": 0.9,
+      "pagefile_used_percent": 0.9,
+      "commit_used_percent": 44.0,
+      "paging_activity": "unconfirmed",
+      "hard_fault_activity": "active",
+      "memory_pressure": "not_observed",
+      "paging_interpretation": "hard_fault_reads_without_memory_shortage",
+      "paging_sampling_mode": "endpoint_rates",
+      "pages_input_per_sec": 1533.0,
+      "page_reads_per_sec": 12.0,
+      "sample_seconds": 36.444
+    },
+    "expected": [
+      {
+        "id": "coverage.temperature",
+        "severity": "info",
+        "status": "unknown"
+      }
+    ],
+    "forbidden_ids": [
+      "memory.pressure.confirmed",
+      "memory.pressure.runtime",
+      "memory.paging.active",
+      "memory.shortage.possible"
+    ],
+    "expected_report_contains": [
+      "Доступно RAM: 51.6 %",
+      "не считается подтверждённой подкачкой",
+      "Что осталось непроверенным"
+    ],
+    "forbidden_report_contains": [
+      "Зафиксирована активная подкачка"
+    ]
+  }
+]

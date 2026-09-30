@@ -1,0 +1,74 @@
+name: Windows release build
+
+# Builds a self-contained Windows ORION.exe (Qt DLLs + MSVC runtime bundled
+# next to it) and uploads it as a downloadable artifact — no local Windows
+# machine or Qt install needed to get a file you can hand to someone else.
+#
+# Run it: push this repo to GitHub (or push a change), open the "Actions" tab,
+# wait for the run to go green, then open the run and download the
+# "ORION-windows" artifact at the bottom of the page. It's a zip containing
+# ORION.exe plus every DLL it needs.
+#
+# You can also trigger it by hand: Actions tab -> "Windows release build" ->
+# "Run workflow".
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch: {}
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Install Qt 6.6 (MSVC 64-bit)
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: "6.6.3"
+          arch: "win64_msvc2019_64"
+          cache: true
+
+      - name: Configure (CMake, Release)
+        run: >
+          cmake -S . -B build
+          -G "Visual Studio 17 2022" -A x64
+          -DCMAKE_BUILD_TYPE=Release
+          -DORION_BUILD_GUI=ON
+          -DORION_BUILD_DIAGNOSTICS=ON
+          -DORION_BUILD_STORAGE=ON
+          -DORION_BUILD_NETSCAN=ON
+          -DORION_BUILD_TESTS=OFF
+
+      - name: Build ORION.exe
+        run: cmake --build build --config Release --target orion --parallel
+
+      - name: Locate the built exe
+        id: locate
+        shell: pwsh
+        run: |
+          $exe = Get-ChildItem -Path build -Recurse -Filter "ORION.exe" | Select-Object -First 1
+          if (-not $exe) { throw "ORION.exe not found under build/ - build must have failed." }
+          Write-Host "Found: $($exe.FullName)"
+          New-Item -ItemType Directory -Force -Path dist | Out-Null
+          Copy-Item $exe.FullName -Destination dist\ORION.exe
+
+      - name: Bundle Qt DLLs + MSVC runtime (windeployqt)
+        shell: pwsh
+        run: |
+          windeployqt --release --compiler-runtime dist\ORION.exe
+
+      - name: Zip the distributable folder
+        shell: pwsh
+        run: |
+          Compress-Archive -Path dist\* -DestinationPath ORION-windows.zip
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ORION-windows
+          path: ORION-windows.zip
+          retention-days: 30

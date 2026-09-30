@@ -1,0 +1,106 @@
+qt_standard_project_setup()
+
+qt_add_executable(orion WIN32
+    main.cpp
+    main_window.cpp
+    main_window.h
+    diagnostic_dock_layout.cpp
+    diagnostic_dock_layout.h
+    startup_sequence.cpp
+    startup_sequence.h
+    startup_dialog.cpp
+    startup_dialog.h
+    telemetry_worker.cpp
+    telemetry_worker.h
+    ping_worker.cpp
+    ping_worker.h
+    network_scanner_worker.cpp
+    network_scanner_worker.h
+    network_identity.cpp
+    network_identity.h
+    internet_tools_worker.cpp
+    internet_tools_worker.h
+    server_status_checker.cpp
+    server_status_checker.h
+    terminal_text.cpp
+    terminal_text.h
+    overlay_fps_counter.cpp
+    overlay_fps_counter.h
+    process_worker.cpp
+    process_worker.h
+    process_action_worker.cpp
+    process_action_worker.h
+    autostart_worker.cpp
+    autostart_worker.h
+    diagnostic_worker.cpp
+    diagnostic_worker.h
+    deep_scan_worker.cpp
+    deep_scan_worker.h
+    deep_scan_dialog.cpp
+    deep_scan_dialog.h
+    full_scan_worker.cpp
+    full_scan_worker.h
+    scan_report_sections.cpp
+    scan_report_sections.h
+    full_scan_dialog.cpp
+    full_scan_dialog.h
+    deep_telemetry_dialog.cpp
+    deep_telemetry_dialog.h
+    stress_worker.cpp
+    stress_worker.h
+    app_monitor_worker.cpp
+    app_process_session.cpp
+    app_process_session.h
+    app_monitor_worker.h
+    incident_worker.cpp
+    incident_worker.h
+    hardware_inventory_worker.cpp
+    hardware_inventory_worker.h
+    hardware_inventory_details.cpp
+    hardware_inventory_details.h
+    telemetry_types.h
+    widgets/metric_card.cpp
+    widgets/independent_dock_widget.cpp
+    widgets/independent_dock_widget.h
+    widgets/metric_card.h
+    widgets/details_panel.cpp
+    widgets/details_panel.h
+    widgets/gauge_widget.cpp
+    widgets/gauge_widget.h
+    widgets/gamer_overlay.cpp
+    widgets/gamer_overlay.h
+    widgets/sparkline_widget.cpp
+    widgets/sparkline_widget.h
+    widgets/cpu_core_chart_widget.cpp
+    widgets/cpu_core_chart_widget.h
+    widgets/network_traffic_chart.cpp
+    widgets/network_traffic_chart.h
+    widgets/app_monitor_chart.cpp
+    widgets/app_monitor_chart.h
+    widgets/server_monitor_widget.cpp
+    widgets/server_monitor_widget.h
+    widgets/terminal_widget.cpp
+    widgets/terminal_widget.h
+)
+
+if(WIN32)
+    target_link_libraries(orion PRIVATE d3d11 d3dcompiler dxgi iphlpapi ws2_32
+        wbemuuid ole32 oleaut32)
+endif()
+
+target_link_libraries(orion
+    PRIVATE
+        ORION::Core
+        ORION::Platform
+        ORION::Storage
+        ORION::Diagnostics
+        Qt6::Core
+        Qt6::Gui
+        Qt6::Network
+        Qt6::Widgets
+)
+
+set_target_properties(orion PROPERTIES
+    OUTPUT_NAME "ORION"
+    QT_WINDOWS_APP_PROJECT_EXECUTION_LEVEL "asInvoker"
+)

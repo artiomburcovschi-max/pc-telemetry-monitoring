@@ -1,0 +1,19 @@
+Third-party runtime notice
+==========================
+
+This Windows package dynamically links to Qt 6 libraries. Qt is available
+under the GNU Lesser General Public License version 3; a copy is included in
+licenses/LGPL-3.0-only.txt. Qt source code is available from:
+https://download.qt.io/official_releases/qt/6.9/6.9.3/submodules/
+
+The bundled Qt SQLite driver includes SQLite. SQLite is dedicated to the
+public domain; its copyright statement is available at:
+https://sqlite.org/copyright.html
+
+The package also contains GCC/MinGW runtime libraries distributed with the
+MinGW-w64 toolchain. Those libraries are covered by their respective upstream
+licenses and GCC Runtime Library Exception where applicable.
+
+No license for the O.R.I.O.N. application sources is asserted by this notice;
+the project owner should choose and add the project license before public
+distribution.

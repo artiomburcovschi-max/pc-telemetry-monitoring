@@ -1,0 +1,60 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 21,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "native-debug",
+      "displayName": "O.R.I.O.N. Native Debug",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "ORION_BUILD_GUI": "ON",
+        "ORION_BUILD_DIAGNOSTICS": "ON",
+        "ORION_BUILD_STORAGE": "ON",
+        "ORION_BUILD_TESTS": "ON"
+      }
+    },
+    {
+      "name": "native-release",
+      "displayName": "O.R.I.O.N. Native Release",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "ORION_BUILD_GUI": "ON",
+        "ORION_BUILD_DIAGNOSTICS": "ON",
+        "ORION_BUILD_STORAGE": "ON",
+        "ORION_BUILD_TESTS": "ON"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "native-debug",
+      "configurePreset": "native-debug",
+      "jobs": 4
+    },
+    {
+      "name": "native-release",
+      "configurePreset": "native-release",
+      "jobs": 4
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "native-debug",
+      "configurePreset": "native-debug",
+      "output": { "outputOnFailure": true }
+    },
+    {
+      "name": "native-release",
+      "configurePreset": "native-release",
+      "output": { "outputOnFailure": true }
+    }
+  ]
+}
