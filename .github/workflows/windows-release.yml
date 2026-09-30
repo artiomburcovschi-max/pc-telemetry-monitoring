@@ -35,8 +35,8 @@ jobs:
       - name: Configure (CMake, Release)
         run: >
           cmake -S . -B build
-          -G "Ninja"
-          -DCMAKE_BUILD_TYPE=Release
+          -G "Visual Studio 17 2022"
+          -A x64
           -DORION_BUILD_GUI=ON
           -DORION_BUILD_DIAGNOSTICS=ON
           -DORION_BUILD_STORAGE=ON
