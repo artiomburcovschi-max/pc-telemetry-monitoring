@@ -18,6 +18,7 @@ option(ORION_BUILD_TESTS "Build native unit and smoke tests" ON)
 option(ORION_BUILD_NETSCAN "Build the native network scanner" ON)
 
 if(MSVC)
+    add_compile_definitions(NOMINMAX)
     add_compile_options(/W4 /permissive- /utf-8)
 else()
     add_compile_options(-Wall -Wextra -Wpedantic)
