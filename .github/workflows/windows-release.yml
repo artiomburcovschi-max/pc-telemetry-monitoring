@@ -43,16 +43,26 @@ jobs:
           -DORION_BUILD_NETSCAN=ON
           -DORION_BUILD_TESTS=OFF
 
-
+      - name: Build ORION.exe
+        run: cmake --build build --config Release --parallel
 
       - name: Locate the built exe
         id: locate
         shell: pwsh
         run: |
-          $exe = Get-ChildItem -Path build -Recurse -Filter "ORION.exe" | Select-Object -First 1
-          if (-not $exe) { throw "ORION.exe not found under build/ - build must have failed." }
+          # Умный поиск файла без привязки к регистру букв (ищет orion.exe или ORION.exe)
+          $exe = Get-ChildItem -Path build -Recurse -Include "orion.exe", "ORION.exe" | Select-Object -First 1
+          
+          if (-not $exe) { 
+              Write-Host "--- DEBUG: Список файлов в папке build ---"
+              Get-ChildItem -Path build -Recurse | Select-Object FullName
+              throw "Исполняемый файл не найден под build/. Проверь лог выше." 
+          }
+          
           Write-Host "Found: $($exe.FullName)"
           New-Item -ItemType Directory -Force -Path dist | Out-Null
+          
+          # Копируем файл в рабочую папку сборщика деплоя и принудительно даем ему имя большими буквами
           Copy-Item $exe.FullName -Destination dist\ORION.exe
 
       - name: Bundle Qt DLLs + MSVC runtime (windeployqt)
