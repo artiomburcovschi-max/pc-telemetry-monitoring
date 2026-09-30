@@ -16,7 +16,17 @@ if(WIN32)
         src/windows_process_collector.cpp
         src/windows_autostart_collector.cpp)
     target_compile_definitions(orion_platform PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX UNICODE _UNICODE)
-    target_link_libraries(orion_platform PRIVATE iphlpapi advapi32 dxgi wbemuuid ole32 oleaut32 psapi pdh)
+    target_link_libraries(orion_platform PRIVATE
+        iphlpapi
+        advapi32
+        dxgi
+        dxguid
+        wbemuuid
+        ole32
+        oleaut32
+        psapi
+        pdh
+    )
 elseif(UNIX AND NOT APPLE)
     target_sources(orion_platform PRIVATE
         src/linux_system_backend.cpp
