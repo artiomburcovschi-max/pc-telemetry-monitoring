@@ -1,17 +1,5 @@
 name: Windows release build
 
-# Builds a self-contained Windows ORION.exe (Qt DLLs + MSVC runtime bundled
-# next to it) and uploads it as a downloadable artifact — no local Windows
-# machine or Qt install needed to get a file you can hand to someone else.
-#
-# Run it: push this repo to GitHub (or push a change), open the "Actions" tab,
-# wait for the run to go green, then open the run and download the
-# "ORION-windows" artifact at the bottom of the page. It's a zip containing
-# ORION.exe plus every DLL it needs.
-#
-# You can also trigger it by hand: Actions tab -> "Windows release build" ->
-# "Run workflow".
-
 on:
   push:
     branches: [main, master]
@@ -19,7 +7,7 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: windows-2022
 
     steps:
       - name: Check out source
@@ -32,15 +20,14 @@ jobs:
           arch: "win64_msvc2019_64"
           cache: true
 
-      - name: Install Visual Studio Build Tools
+      - name: Setup MSVC environment
         uses: ilammy/msvc-dev-cmd@v1
         with:
           arch: x64
-
-      - name: Install CMake
-        run: choco install cmake -y
+          toolset: 14.4
 
       - name: Configure (CMake, Release, MSVC)
+        shell: bash
         run: >
           cmake -S . -B build
           -G "Visual Studio 17 2022"
@@ -52,25 +39,22 @@ jobs:
           -DORION_BUILD_TESTS=OFF
 
       - name: Build ORION.exe
+        shell: bash
         run: cmake --build build --config Release --parallel
 
       - name: Locate the built exe
         id: locate
         shell: pwsh
         run: |
-          # Поиск файла без привязки к регистру букв (ищет orion.exe или ORION.exe)
           $exe = Get-ChildItem -Path build -Recurse -Include "orion.exe", "ORION.exe" | Select-Object -First 1
-          
-          if (-not $exe) { 
-              Write-Host "--- DEBUG: Список файлов в папке build ---"
-              Get-ChildItem -Path build -Recurse | Select-Object FullName
-              throw "Исполняемый файл не найден под build/. Проверь лог выше." 
+          if (-not $exe) {
+            Write-Host "--- DEBUG: Список файлов в папке build ---"
+            Get-ChildItem -Path build -Recurse | Select-Object FullName
+            throw "Исполняемый файл не найден под build/. Проверь лог выше."
           }
-          
+
           Write-Host "Found: $($exe.FullName)"
           New-Item -ItemType Directory -Force -Path dist | Out-Null
-          
-          # Копируем файл в рабочую папку сборщика деплоя
           Copy-Item $exe.FullName -Destination dist\ORION.exe
 
       - name: Bundle Qt DLLs + MSVC runtime (windeployqt)
