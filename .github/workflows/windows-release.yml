@@ -32,17 +32,19 @@ jobs:
           arch: "win64_msvc2019_64"
           cache: true
 
+      - name: Install Visual Studio Build Tools
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
 
-      - name: Install CMake and Ninja
-        run: |
-          choco install cmake ninja -y
-  
+      - name: Install CMake
+        run: choco install cmake -y
+
       - name: Configure (CMake, Release, MSVC)
         run: >
           cmake -S . -B build
           -G "Visual Studio 17 2022"
           -A x64
-          -DCMAKE_BUILD_TYPE=Release
           -DORION_BUILD_GUI=ON
           -DORION_BUILD_DIAGNOSTICS=ON
           -DORION_BUILD_STORAGE=ON
@@ -56,7 +58,7 @@ jobs:
         id: locate
         shell: pwsh
         run: |
-          # Умный поиск файла без привязки к регистру букв (ищет orion.exe или ORION.exe)
+          # Поиск файла без привязки к регистру букв (ищет orion.exe или ORION.exe)
           $exe = Get-ChildItem -Path build -Recurse -Include "orion.exe", "ORION.exe" | Select-Object -First 1
           
           if (-not $exe) { 
@@ -68,7 +70,7 @@ jobs:
           Write-Host "Found: $($exe.FullName)"
           New-Item -ItemType Directory -Force -Path dist | Out-Null
           
-          # Копируем файл в рабочую папку сборщика деплоя и принудительно даем ему имя большими буквами
+          # Копируем файл в рабочую папку сборщика деплоя
           Copy-Item $exe.FullName -Destination dist\ORION.exe
 
       - name: Bundle Qt DLLs + MSVC runtime (windeployqt)
