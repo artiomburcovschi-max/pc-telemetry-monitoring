@@ -19,15 +19,30 @@ target_include_directories(orion_diagnostics
 
 target_link_libraries(orion_diagnostics PUBLIC ORION::Core Qt6::Core)
 
+if(MSVC)
+    target_compile_definitions(orion_diagnostics PRIVATE WIN32_LEAN_AND_MEAN UNICODE _UNICODE)
+    target_compile_options(orion_diagnostics PRIVATE /W4 /permissive- /utf-8)
+else()
+    target_compile_definitions(orion_diagnostics PRIVATE WIN32_LEAN_AND_MEAN UNICODE _UNICODE)
+    target_compile_options(orion_diagnostics PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
 if(WIN32)
-    target_compile_definitions(orion_diagnostics PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX UNICODE _UNICODE)
-    target_link_libraries(orion_diagnostics PRIVATE wevtapi)
+    target_link_libraries(orion_diagnostics PRIVATE
+        wevtapi
+        pdh
+        psapi
+        iphlpapi
+        wbemuuid
+        ole32
+        oleaut32
+    )
 endif()
 
 target_compile_features(orion_diagnostics PUBLIC cxx_std_20)
 
 add_executable(orion_golden_contract golden_contract_main.cpp)
-target_link_libraries(orion_golden_contract PRIVATE ORION::Diagnostics Qt6::Core)
+target_link_libraries(orion_golden_contract PRIVATE ORION::Diagnostics)
 
 target_compile_definitions(orion_golden_contract PRIVATE
     ORION_DEFAULT_GOLDEN_FIXTURE="${PROJECT_SOURCE_DIR}/tests/fixtures/diagnostic_golden_cases.json"
