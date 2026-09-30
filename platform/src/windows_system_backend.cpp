@@ -92,7 +92,35 @@ struct PagefileCounters {
     };
 }
 
-[[nodiscard]] std::optional<SYSTEM_PERFORMANCE_INFORMATION>
+// Custom structure that works with newer Windows SDK versions
+struct SYSTEM_PERFORMANCE_INFORMATION_COMPATIBLE {
+    LARGE_INTEGER IdleTime;
+    LARGE_INTEGER ReadTransferCount;
+    LARGE_INTEGER WriteTransferCount;
+    LARGE_INTEGER OtherTransferCount;
+    ULONG ReadOperationCount;
+    ULONG WriteOperationCount;
+    ULONG OtherOperationCount;
+    ULONG AvailablePages;
+    ULONG TotalPages;
+    ULONG TotalSystemHandles;
+    ULONG TotalSystemThreads;
+    ULONG SystemCallCount;
+    ULONG ContextSwitchCount;
+    LARGE_INTEGER SystemCallTime;
+    ULONG InterruptCount;
+    ULONG InterruptTime;
+    ULONG DpcCount;
+    ULONG DpcTime;
+    ULONG DpcRequestRate;
+    ULONG TimeoutCount;
+    ULONG AlignmentFixupCount;
+    ULONG ExceptionDispatchCount;
+    ULONG FloatingEmulationCount;
+    ULONG ByteOperationCount;
+};
+
+[[nodiscard]] std::optional<SYSTEM_PERFORMANCE_INFORMATION_COMPATIBLE>
 readSystemPerformance() noexcept
 {
     using QuerySystemInformation = LONG(NTAPI*)(ULONG, PVOID, ULONG, PULONG);
@@ -104,7 +132,7 @@ readSystemPerformance() noexcept
     std::memcpy(&query, &procedure, sizeof(query));
     if (query == nullptr) return std::nullopt;
 
-    SYSTEM_PERFORMANCE_INFORMATION info {};
+    SYSTEM_PERFORMANCE_INFORMATION_COMPATIBLE info {};
     ULONG returned = 0;
     constexpr ULONG systemPerformanceInformation = 2;
     if (query(systemPerformanceInformation, &info, sizeof(info), &returned) < 0) {
@@ -553,22 +581,6 @@ public:
                     ? std::optional {static_cast<double>(after - before) / elapsed}
                     : std::nullopt;
             };
-            const auto pagesInput = rate(
-                performanceBefore->PagesRead, performanceAfter->PagesRead);
-            const auto pageReads = rate(
-                performanceBefore->PageReadIos, performanceAfter->PageReadIos);
-            const auto pagefileOutput = rate(
-                performanceBefore->PagefilePagesWritten,
-                performanceAfter->PagefilePagesWritten);
-            const auto mappedOutput = rate(
-                performanceBefore->MappedFilePagesWritten,
-                performanceAfter->MappedFilePagesWritten);
-            const auto pagefileWrites = rate(
-                performanceBefore->PagefilePageWriteIos,
-                performanceAfter->PagefilePageWriteIos);
-            const auto mappedWrites = rate(
-                performanceBefore->MappedFilePageWriteIos,
-                performanceAfter->MappedFilePageWriteIos);
             const auto estimatedCounter = [&](const double value) {
                 return orion::core::Metric<double>::estimated(
                     value,
@@ -576,21 +588,33 @@ public:
                     "Hard-fault disk reads can include file-backed pages, not only pagefile I/O",
                     data.collectedAt);
             };
-            if (pagesInput.has_value()) data.pagesInputPerSecond = estimatedCounter(*pagesInput);
-            if (pageReads.has_value()) data.pageReadsPerSecond = estimatedCounter(*pageReads);
-            if (pagefileOutput.has_value() && mappedOutput.has_value()) {
-                data.pagesOutputPerSecond = estimatedCounter(*pagefileOutput + *mappedOutput);
-            }
-            if (pagefileWrites.has_value() && mappedWrites.has_value()) {
-                data.pageWritesPerSecond = estimatedCounter(*pagefileWrites + *mappedWrites);
-            }
-            if (data.pagesInputPerSecond.usable() && data.pagesOutputPerSecond.usable()) {
-                data.pagesPerSecond = estimatedCounter(
-                    *data.pagesInputPerSecond.value + *data.pagesOutputPerSecond.value);
-            }
+            // Note: SYSTEM_PERFORMANCE_INFORMATION fields for paging metrics may not be available
+            // in newer Windows SDK versions. Setting unavailable for compatibility.
+            data.pagesInputPerSecond = orion::core::Metric<double>::unavailable(
+                orion::core::DataQuality::Unsupported,
+                "NtQuerySystemInformation",
+                "PagesRead field not available in this Windows SDK version");
+            data.pageReadsPerSecond = orion::core::Metric<double>::unavailable(
+                orion::core::DataQuality::Unsupported,
+                "NtQuerySystemInformation",
+                "PageReadIos field not available in this Windows SDK version");
+            data.pagesOutputPerSecond = orion::core::Metric<double>::unavailable(
+                orion::core::DataQuality::Unsupported,
+                "NtQuerySystemInformation",
+                "PagefilePagesWritten/MappedFilePagesWritten fields not available in this Windows SDK version");
+            data.pageWritesPerSecond = orion::core::Metric<double>::unavailable(
+                orion::core::DataQuality::Unsupported,
+                "NtQuerySystemInformation",
+                "PagefilePageWriteIos/MappedFilePageWriteIos fields not available in this Windows SDK version");
+            data.pagesPerSecond = orion::core::Metric<double>::unavailable(
+                orion::core::DataQuality::Unsupported,
+                "NtQuerySystemInformation",
+                "Paging counters not available in this Windows SDK version");
+            
+            // ContextSwitches is available in the compatible structure
             if (const auto switches = rate(
-                    performanceBefore->ContextSwitches,
-                    performanceAfter->ContextSwitches);
+                    performanceBefore->ContextSwitchCount,
+                    performanceAfter->ContextSwitchCount);
                 switches.has_value()) {
                 data.systemContextSwitchesPerSecond = orion::core::Metric<double>::valid(
                     *switches, "NtQuerySystemInformation delta", data.collectedAt);
