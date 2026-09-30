@@ -35,16 +35,14 @@ jobs:
       - name: Configure (CMake, Release)
         run: >
           cmake -S . -B build
-          -G "Visual Studio 17 2022"
-          -A x64
+          -G "Ninja"
+          -DCMAKE_BUILD_TYPE=Release
           -DORION_BUILD_GUI=ON
           -DORION_BUILD_DIAGNOSTICS=ON
           -DORION_BUILD_STORAGE=ON
           -DORION_BUILD_NETSCAN=ON
           -DORION_BUILD_TESTS=OFF
 
-      - name: Build ORION.exe
-        run: cmake --build build --config Release --parallel
 
 
       - name: Locate the built exe
